@@ -65,7 +65,7 @@ class SuperMarioBrosEnv(NESEnv):
         self.tile_width = 16
         self.screen_height = 16
         self.screen_width = 16
-        self.tiles = np.zeros(shape=(self.tile_height, self.tile_width), dtype=np.uint8)
+        #self.tiles = np.zeros(shape=(self.tile_height, self.tile_width), dtype=np.uint8)
         self.observation_space = spaces.Box(low=0, high=3, shape=(self.tile_height, self.tile_width))
 
     @property
@@ -311,7 +311,7 @@ class SuperMarioBrosEnv(NESEnv):
     @property
     def _y_position(self):
         """Return the current vertical position."""
-        return self._read_mem(0x03b8)
+        return self._read_mem(0x03b8)+16
 
     @property
     def _y_viewport(self):
@@ -619,9 +619,8 @@ class SuperMarioBrosEnv(NESEnv):
                     if distx <= 8 and disty <= 8:
                         inputs[len(inputs)-1]=-1#[#inputs] = -1
        
-        # mariovx = self._read_mem.read_s8(0x7B)
-        # mariovy = self._read_mem.read_s8(0x7D)
-        # inputs[mario]
+        #--mariovx = memory.read_s8(0x7B)
+        #--mariovy = memory.read_s8(0x7D)
        
         return inputs
 
@@ -642,7 +641,8 @@ class SuperMarioBrosEnv(NESEnv):
             'time': self._time,
             'world': self._world,
             'x_pos': self._x_position,
-            'test': self.getInputs(),
+            'y_pos': self._y_position,
+            'inp': self.getInputs(),
         }
 
 
