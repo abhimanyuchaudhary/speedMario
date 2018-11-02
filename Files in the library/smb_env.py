@@ -311,7 +311,7 @@ class SuperMarioBrosEnv(NESEnv):
     @property
     def _y_position(self):
         """Return the current vertical position."""
-        return self._read_mem(0x03b8)+16
+        return self._read_mem(0x03b8)+32
 
     @property
     def _y_viewport(self):

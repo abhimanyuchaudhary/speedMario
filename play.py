@@ -36,7 +36,7 @@ def show_info(info):
 count=0
 prev_xpos=0
 done = True
-for step in range(1000):
+for step in range(1):
     if done or count>3:
         count=0
         print("Reset")
@@ -46,7 +46,7 @@ for step in range(1000):
 
       
     #use input to calculate next move M    
-    state, reward, done, info = env.step(env.action_space.sample())#play M
+    state, reward, done, info = env.step(0)#env.action_space.sample())#play M
     time.sleep(.010)
 
        

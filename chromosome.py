@@ -1,8 +1,8 @@
 class link:
-    def __init__(self, neuron1, neuron2, isDisabled = False, weight = 1, innovation= -1):
+    def __init__(self, neuron1, neuron2, isEnabled = True, weight = 1, innovation= -1):
         self.neuron1 = neuron1
         self.neuron2 = neuron2
-        self.isDisabled = isDisabled
+        self.isEnabled = isEnabled
         self.weight = weight
         self.innovation = innovation
     def showLink(self):
@@ -18,7 +18,7 @@ class chromosome:
         self.outputNeurons = []
         self.hiddenNeurons = []
         self.links = []
-        for i in range(16):
+        for i in range(145):
             self.inputNeurons.append(i)
         for i in range(2000, 2000+12):
             self.outputNeurons.append(i)

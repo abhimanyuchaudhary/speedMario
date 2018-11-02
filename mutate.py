@@ -3,32 +3,69 @@ from random import randint
 import random
 from copy import deepcopy
 
-random.seed(0) # remove later
+#random.seed(0) # remove later
 
 def mutate(chromosome, innovationNumber):
-	PROBABILITY_enableDisable = 1
-	PROBABILITY_linkMutate = 1
-	PROBABILITY_pointMutate = 1
-	PROBABILITY_nodeMutate = 1
+	PROBABILITY_enable = 0.4
+	PROBABILITY_disable = 0.2
+	PROBABILITY_linkMutate = 0.75
+	PROBABILITY_pointMutate = 0.9
+	PROBABILITY_nodeMutate = 0.5
+
+	if random.random()<PROBABILITY_pointMutate:
+		chromosome=pointMutate(chromosome)
+
+	#LinkMutate usually occurs twice
+	chromosome=linkMutate(chromosome,1)
+	if random.random()<PROBABILITY_linkMutate:
+		chromosome=linkMutate(chromosome,1)
+
+	if random.random()<PROBABILITY_nodeMutate:
+		chromosome=nodeMutate(chromosome,1)
+
+	if random.random()<PROBABILITY_enable:
+		chromosome=enableDisableMutate(chromosome,True)
+
+	if random.random()<PROBABILITY_disable:
+		chromosome=enableDisableMutate(chromosome,False)
 
 
 
 	print("her")
 	return chromosome
-def enableDisableMutate(link):
-	#enables/disables link
-	link.isDisabled != link.isDisabled
-	return link
 
-def pointMutate(link):
-	perturbChance = 3
-	step = 1
+
+
+def enableDisableMutate(chromosome,enable):
+	#enables/disables link
+	possible=[]
+	for i in range(len(chromosome.links)):
+		if not chromosome.links[i].isEnabled==enable:
+			possible.append(i)
+
+	if len(possible)==0:
+		return chromosome
+	l=possible[random.randint(0,len(possible)-1)]
+	chromosome.links[l].isEnabled=enable
+	return chromosome
+
+
+
+def pointMutate(chromosome):
+	if len(chromosome.links)<=0:
+		return chromosome
+	perturbChance = 0.9
+	step = 0.1
 	#when do we decrease
-	if(randint(0, 10) < perturbChance):
-		link.weight = link.weight + random.random() * step*2 - step
+	l=random.randint(0,len(chromosome.links)-1)
+	if random.random() < perturbChance:
+		chromosome.links[l].weight = chromosome.links[l].weight + random.random()*step*2 - step
 	else:
-		link.weight = random.random()*4 - 2
-	return link
+		chromosome.links[l].weight = random.random()*4 - 2
+	return chromosome
+
+
+
 def linkMutate(chromosome, innovationNumber):#consider where to increment innovation Number
 	'''
 	returns link array which has to be replaced with the chromosome link array in the main mutate function
@@ -37,44 +74,60 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 	neuron1 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
 	neuron2 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
 
-	print("neuron1", neuron1)
-	print("neuron2", neuron2)
+	#print("neuron1", neuron1)
+	#print("neuron2", neuron2)
 
 	#if same them return same link
-	if(neuron1 == neuron2):
-		return chromosome.links
+	if neuron1 == neuron2:
+		return chromosome
 	#if both inputs then return same
-	if(neuron1 < 16 and neuron2 < 16):
-		return chromosome.links
+	if neuron1 < len(chromosome.inputNeurons) and neuron2 < len(chromosome.inputNeurons):
+		return chromosome
 
 	#if neuron2 is input and 1 is not then flip
-	if(neuron2 < 16):
-		neuron1, neuron2 = neuron2, neuron1
-	#if both output then returns same, idk why he didn't consider this
-	if(neuron1 >= 2000 and neuron2 >= 200):
-		return chromosome.links
-	#fliping if neuron 1 is output
-	if(neuron1 >= 2000):
-		neuron1, neuron2 = neuron2, neuron1
-	#if neuron1 > neuron2 flip:	
-	if(neuron1 > neuron2):
+	if neuron2 < len(chromosome.inputNeurons):
 		neuron1, neuron2 = neuron2, neuron1
 
 	#if link alread exists then return
 	for i in chromosome.links:
-		if(neuron1 == i.neuron1 and neuron2 == i.neuron2):
-			return chromosome.links
+		if neuron1 == i.neuron1 and neuron2 == i.neuron2:
+			return chromosome
 
-	newLink = link(neuron1, neuron2, False, random.random()*4 - 2, innovationNumber)
+	newLink = link(neuron1, neuron2, True, random.random()*4 - 2, innovationNumber)
 	chromosome.links.append(newLink)
-	return chromosome.links
+	return chromosome
 
+def nodeMutate(chromosome, innovationNumber):
+	if len(chromosome.links)<=0:
+		return chromosome
+	l=random.randint(0,len(chromosome.links)-1)
+	if not chromosome.links[l].isEnabled:
+		return chromosome
+
+	neuron1=chromosome.links[l].neuron1
+	neuron2=chromosome.links[l].neuron2
+
+
+	newNeuron=len(chromosome.inputNeurons)+len(chromosome.hiddenNeurons)
+	chromosome.hiddenNeurons.append(newNeuron)
+	chromosome.links[l].isEnabled=False
+
+	newLink1=link(neuron1, newNeuron, True, 1, innovationNumber)
+	newLink2=link(newNeuron, neuron2, True, random.random()*4 - 2, innovationNumber)
+
+	chromosome.links.append(newLink1)
+	chromosome.links.append(newLink2)
+
+	return chromosome
+
+
+'''
 c = chromosome()
 c.showChromosome()
-
-c.links = deepcopy(linkMutate(c, 1))
+for i in range(10):
+	c=mutate(c,1)
 c.showChromosome()
-
+'''
 
 
 
