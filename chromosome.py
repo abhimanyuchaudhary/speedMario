@@ -1,15 +1,15 @@
 class link:
-    def __init__(self, neuron1, neuron2, isDisabled = False, weight = 1, generation = -1):
+    def __init__(self, neuron1, neuron2, isDisabled = False, weight = 1, innovation= -1):
         self.neuron1 = neuron1
         self.neuron2 = neuron2
         self.isDisabled = isDisabled
         self.weight = weight
-        self.generation = generation
+        self.innovation = innovation
     def showLink(self):
         print("Neuron 1 ", self.neuron1)
         print("Neuron 2 ", self.neuron2)
         print("weight", self.weight)
-        print("Generation", self.generation)
+        print("Generation", self.innovation)
 
 class chromosome:
     def __init__(self):
