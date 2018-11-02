@@ -14,6 +14,11 @@ class link:
 class chromosome:
     def __init__(self):
         self.inputNeurons = []
+        #2000 +
         self.outputNeurons = []
         self.hiddenNeurons = []
         self.links = []
+        for i in range(16):
+            inputNeurons.append(i)
+        for i in range(2000, 2000+12):
+            outputNeurons.append(i)
