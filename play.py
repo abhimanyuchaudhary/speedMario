@@ -7,6 +7,7 @@ import time
 from chromosome import link, chromosome
 from mutate import mutate
 from crossover import crossover
+from population import population
 
 
 
@@ -32,34 +33,47 @@ def show_info(info):
     print("y_pos: "+str(info['y_pos']),end="\n\n")
 
 
+def getNetworkOutput(nn,input):
+    return env.action_space.sample()
 
+
+
+
+
+
+
+population=population(5)
+population.initializePopulation()
 count=0
 prev_xpos=0
 done = True
-for step in range(1):
-    if done or count>3:
+for step in range(1000):
+    if done or count>10:
         count=0
         print("Reset")
         state = env.reset()
-        #load new nn
-        #state, reward, done, info = env.step(0)
+        currentNN=population.fetchNext()#load new nn
+        if not currentNN:
+            break
+        state, reward, done, info = env.step(0)
 
       
-    #use input to calculate next move M    
-    state, reward, done, info = env.step(0)#env.action_space.sample())#play M
+    #use input to calculate next move M  
+    M=getNetworkOutput(currentNN,info['inp'])
+    state, reward, done, info = env.step(M)#play M
     time.sleep(.010)
 
        
-    if prev_xpos==info['x_pos']:
+    if prev_xpos>=info['x_pos']:
         count+=1
     else:
         count=0
     prev_xpos=info['x_pos']
 
-    show_info(info)
+    #show_info(info)
     #print(len(info['inp']))
-    show_input(info['inp'])
-    print("X--------------------X")
+    #show_input(info['inp'])
+    #print("X--------------------X")
     env.render()
 
 env.close()

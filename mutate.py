@@ -29,9 +29,6 @@ def mutate(chromosome, innovationNumber):
 	if random.random()<PROBABILITY_disable:
 		chromosome=enableDisableMutate(chromosome,False)
 
-
-
-	print("her")
 	return chromosome
 
 
@@ -97,6 +94,7 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 	chromosome.links.append(newLink)
 	return chromosome
 
+
 def nodeMutate(chromosome, innovationNumber):
 	if len(chromosome.links)<=0:
 		return chromosome
@@ -128,7 +126,6 @@ for i in range(10):
 	c=mutate(c,1)
 c.showChromosome()
 '''
-
 
 
 
