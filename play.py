@@ -54,6 +54,7 @@ for step in range(1000):
         state = env.reset()
         currentNN=population.fetchNext()#load new nn
         if not currentNN:
+            #remove weak individuals, generate new population
             break
         state, reward, done, info = env.step(0)
 
