@@ -1,6 +1,9 @@
 from chromosome import link, chromosome
 from random import randint
 import random
+from copy import deepcopy
+
+random.seed(0) # remove later
 
 def mutate(chromosome, innovationNumber):
 	PROBABILITY_enableDisable = 1
@@ -34,6 +37,9 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 	neuron1 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
 	neuron2 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
 
+	print("neuron1", neuron1)
+	print("neuron2", neuron2)
+
 	#if same them return same link
 	if(neuron1 == neuron2):
 		return chromosome.links
@@ -50,6 +56,10 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 	#fliping if neuron 1 is output
 	if(neuron1 >= 2000):
 		neuron1, neuron2 = neuron2, neuron1
+	#if neuron1 > neuron2 flip:	
+	if(neuron1 > neuron2):
+		neuron1, neuron2 = neuron2, neuron1
+
 	#if link alread exists then return
 	for i in chromosome.links:
 		if(neuron1 == i.neuron1 and neuron2 == i.neuron2):
@@ -59,7 +69,12 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 	chromosome.links.append(newLink)
 	return chromosome.links
 
-c = chromosome
+c = chromosome()
+c.showChromosome()
+
+c.links = deepcopy(linkMutate(c, 1))
+c.showChromosome()
+
 
 
 

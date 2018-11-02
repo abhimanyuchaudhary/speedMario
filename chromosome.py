@@ -19,6 +19,12 @@ class chromosome:
         self.hiddenNeurons = []
         self.links = []
         for i in range(16):
-            inputNeurons.append(i)
+            self.inputNeurons.append(i)
         for i in range(2000, 2000+12):
-            outputNeurons.append(i)
+            self.outputNeurons.append(i)
+    def showChromosome(self):
+        print("Input", self.inputNeurons)
+        print("Hidden", self.hiddenNeurons)
+        print("Output", self.outputNeurons)
+        for i in self.links:
+            i.showLink()
