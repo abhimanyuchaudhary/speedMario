@@ -1,4 +1,4 @@
-from chromosome import link, chromosome
+from chromosome import link, chromosome, neuron
 import _pickle as cPickle
 from copy import deepcopy
 import mutate
@@ -15,7 +15,8 @@ class population:
 	def initializePopulation(self):
 		for i in range(self.numberOfIndividuals):
 			temp = deepcopy(chromosome())
-			temp=mutate.mutate(temp,1)
+			for i in range(100):
+				temp=mutate.mutate(temp,1)
 			self.individuals.append(temp)
 	
 	def save(self):
@@ -39,7 +40,7 @@ class population:
 		print(self.generationNumber, self.numberOfIndividuals)
 
 	def fetchNext(self):
-		if self.index==self.numberOfIndividuals:
+		if self.index>=self.numberOfIndividuals:
 			return;
 		self.index+=1
 		return self.individuals[self.index-1]

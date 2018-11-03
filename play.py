@@ -4,11 +4,11 @@ from gym_super_mario_bros.actions import COMPLEX_MOVEMENT
 env = gym_super_mario_bros.make('SuperMarioBros-v0')
 env = BinarySpaceToDiscreteSpaceEnv(env, COMPLEX_MOVEMENT)
 import time
-from chromosome import link, chromosome
+from chromosome import link, chromosome, neuron
 from mutate import mutate
 from crossover import crossover
 from population import population
-
+import math
 
 
 
@@ -33,11 +33,44 @@ def show_info(info):
     print("y_pos: "+str(info['y_pos']),end="\n\n")
 
 
+def sigmoid(S):
+    if S==0:
+        return 0
+    return 2/(1+math.exp(-1*S))
+
+
 def getNetworkOutput(nn,input):
-    return env.action_space.sample()
+    for i in range(len(input)):
+        nn.inputNeurons[i].val=input[i]
+
+    for i in range(len(nn.hiddenNeurons)):
+        S=0
+        for link in nn.hiddenNeurons[i].incomingLinks:
+            if link.isEnabled:
+                value=nn.getValue(link.neuron1)
+                S=S+link.weight*value
+        nn.hiddenNeurons[i].val=sigmoid(S)
 
 
+    maxVal=-2
+    maxIndex=-1
+    for i in range(len(nn.outputNeurons)):
+        S=0
+        for link in nn.outputNeurons[i].incomingLinks:
+            if link.isEnabled:
+                value=nn.getValue(link.neuron1)
+                S=S+link.weight*value
+        nn.outputNeurons[i].val=sigmoid(S)
+        if maxVal<nn.outputNeurons[i].val:
+            maxVal=nn.outputNeurons[i].val
+            maxIndex=i
 
+    #print("Output: ",end='')
+    #for i in nn.outputNeurons:
+    #    print(i.val,end=" ")
+    #print()
+    #print(maxIndex)
+    return maxIndex
 
 
 
@@ -65,7 +98,7 @@ for step in range(1000):
     time.sleep(.010)
 
        
-    if prev_xpos>=info['x_pos']:
+    if prev_xpos+4>=info['x_pos']:
         count+=1
     else:
         count=0

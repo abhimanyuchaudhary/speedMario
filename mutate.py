@@ -1,4 +1,4 @@
-from chromosome import link, chromosome
+from chromosome import link, chromosome, neuron
 from random import randint
 import random
 from copy import deepcopy
@@ -68,8 +68,11 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 	returns link array which has to be replaced with the chromosome link array in the main mutate function
 	'''
 	
-	neuron1 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
-	neuron2 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
+	n1 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
+	n2 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
+
+	neuron1=n1.number
+	neuron2=n2.number
 
 	#print("neuron1", neuron1)
 	#print("neuron2", neuron2)
@@ -92,6 +95,7 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 
 	newLink = link(neuron1, neuron2, True, random.random()*4 - 2, innovationNumber)
 	chromosome.links.append(newLink)
+	chromosome.addIncomingLinkToNeurons(newLink,neuron2)
 	return chromosome
 
 
@@ -106,15 +110,17 @@ def nodeMutate(chromosome, innovationNumber):
 	neuron2=chromosome.links[l].neuron2
 
 
-	newNeuron=len(chromosome.inputNeurons)+len(chromosome.hiddenNeurons)
+	newNeuron=neuron(len(chromosome.inputNeurons)+len(chromosome.hiddenNeurons))
 	chromosome.hiddenNeurons.append(newNeuron)
 	chromosome.links[l].isEnabled=False
 
-	newLink1=link(neuron1, newNeuron, True, 1, innovationNumber)
-	newLink2=link(newNeuron, neuron2, True, random.random()*4 - 2, innovationNumber)
+	newLink1=link(neuron1, newNeuron.number, True, 1, innovationNumber)
+	newLink2=link(newNeuron.number, neuron2, True, chromosome.links[l].weight, innovationNumber)
 
 	chromosome.links.append(newLink1)
+	chromosome.addIncomingLinkToNeurons(newLink1,newNeuron.number)
 	chromosome.links.append(newLink2)
+	chromosome.addIncomingLinkToNeurons(newLink2,neuron2)
 
 	return chromosome
 
@@ -126,7 +132,6 @@ for i in range(10):
 	c=mutate(c,1)
 c.showChromosome()
 '''
-
 
 
 
