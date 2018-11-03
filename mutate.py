@@ -3,7 +3,7 @@ from random import randint
 import random
 from copy import deepcopy
 
-#random.seed(0) # remove later
+# random.seed(1) # remove later
 
 def mutate(chromosome, innovationNumber):
 	PROBABILITY_enable = 0.4

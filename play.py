@@ -74,7 +74,6 @@ def getNetworkOutput(nn,input):
 
 
 
-
 population=population(5)
 population.initializePopulation()
 count=0
