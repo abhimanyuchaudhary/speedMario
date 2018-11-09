@@ -21,6 +21,8 @@ class link:
         self.innovation = innovation
     def __lt__(self, other):
          return self.innovation < other.innovation
+    def __eq__(self, other):
+        return self.innovation == other.innovation
     
     def showLink(self):
         print("Neuron 1 ", self.neuron1)
@@ -45,6 +47,8 @@ class chromosome:
             self.outputNeurons.append(neuron(i))
     def __lt__(self, other):
          return self.fitnessValue < other.fitnessValue
+    def __eq__(self, other):
+        return self.fitnessValue == other.fitnessValue
 
     def showChromosome(self):
         print("Input: ",end='')

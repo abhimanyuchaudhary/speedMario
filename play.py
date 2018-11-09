@@ -90,7 +90,7 @@ for step in range(1000):
             break
         state, reward, done, info = env.step(0)
 
-    #Checks if NN is done running or Mario stays still for 10counts
+    #Checks if NN is done running or Mario stays still for 10 counts
     if done or count>10:
         count = 0
         currentNN.fitnessValue = prev_xpos #set fitnessValue of NN

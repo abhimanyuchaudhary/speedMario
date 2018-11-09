@@ -3,6 +3,45 @@ import _pickle as cPickle
 from copy import deepcopy
 import mutate
 
+COMPATIBILITY_RANGE = 10;
+C1 = 1
+C2 = 1
+C3 = 1
+def compatibilityDistance(representative, newChromosome):
+	''' See excessDisjointWeight in https://github.com/basanthjenuhb/Mario-AI/blob/master/neat.py
+	'''
+	representativeLinks = deepcopy(representative.links)
+	newChromosomeLinks = deepcopy(newChromosome.links)
+
+	representativeLinks = sorted(representativeLinks)
+	newChromosomeLinks = sorted(newChromosomeLinks)
+
+
+	excess, disjoint, W, i , j = 0.0, 0.0, 0.0, 0, 0
+
+	while(i < len(representativeLinks) and j < len(newChromosomeLinks)):
+		if(representativeLinks[i] == newChromosomeLinks[i]):
+			i = i + 1
+			j = j + 1
+			W = W + abs(representativeLinks[i].innovation - newChromosomeLinks[i].innovation)
+		elif(representativeLinks[i] < newChromosomeLinks[i]):
+			i = i + 1
+			disjoint = disjoint + 1
+		else:
+			j = j + 1
+			excess = excess + 1
+	N = float( max( len(representativeLinks), len(newChromosomeLinks) ) )
+	if N < 20:
+		N = 1.0
+	distance = float(C1 * excess / N) + float(C2 * disjoint / N) + float(C3 * W)
+
+class species:
+	def __init__(self, representative):
+		self.subpopulation = []
+		self.representative = representative
+		self.subpopulation.append(representative)
+	def addChromosome(self, newChromosome):
+		self.subpopulation.append(newChromosome)
 
 class population:
 	def __init__(self, N):
@@ -10,7 +49,20 @@ class population:
 		self.numberOfIndividuals = N
 		self.individuals = []
 		self.index=0
+		self.populationSpecies = []
+
+	def changeGeneration():
+		print("ADD POPULATION CHANGE HERE")
 		
+	def addChromosome(self, chromosome):
+		toAdd = True
+		for species in self.populationSpecies:
+			if(compatibilityDistance(chromosome, species.representative) < COMPATIBILITY_RANGE):
+				species.append(deepcopy(chromosome))
+				toAdd = False
+		if(toAdd == True):
+			self.populationSpecies.append(deepcopy(species(chromosome)))
+
 
 	def initializePopulation(self):
 		for i in range(self.numberOfIndividuals):
