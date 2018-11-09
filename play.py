@@ -12,7 +12,6 @@ import math
 
 
 
-
 #GAME RUNNING GAME RUNNING GAME RUNNING GAME RUNNING GAME RUNNING GAME RUNNING GAME RUNNING GAME RUNNING#
 def show_input(inp):
     for i in range(12):
@@ -78,13 +77,26 @@ population=population(5)
 population.initializePopulation()
 count=0
 prev_xpos=0
-done = True
+done = False
+start = True
 for step in range(1000):
+    #Checks if first NN is to be loaded
+    if(start):
+        start = False
+        state = env.reset()
+        currentNN = population.fetchNext()#load new nn
+        if not currentNN:
+            #remove weak individuals, generate new population
+            break
+        state, reward, done, info = env.step(0)
+
+    #Checks if NN is done running or Mario stays still for 10counts
     if done or count>10:
-        count=0
+        count = 0
+        currentNN.fitnessValue = prev_xpos #set fitnessValue of NN
         print("Reset")
         state = env.reset()
-        currentNN=population.fetchNext()#load new nn
+        currentNN = population.fetchNext()#load new nn
         if not currentNN:
             #remove weak individuals, generate new population
             break

@@ -16,12 +16,12 @@ def mutate(chromosome, innovationNumber):
 		chromosome=pointMutate(chromosome)
 
 	#LinkMutate usually occurs twice
-	chromosome=linkMutate(chromosome,1)
+	chromosome=linkMutate(chromosome, innovationNumber)
 	if random.random()<PROBABILITY_linkMutate:
-		chromosome=linkMutate(chromosome,1)
+		chromosome=linkMutate(chromosome, innovationNumber)
 
 	if random.random()<PROBABILITY_nodeMutate:
-		chromosome=nodeMutate(chromosome,1)
+		chromosome=nodeMutate(chromosome, innovationNumber)
 
 	if random.random()<PROBABILITY_enable:
 		chromosome=enableDisableMutate(chromosome,True)
@@ -71,8 +71,8 @@ def linkMutate(chromosome, innovationNumber):#consider where to increment innova
 	n1 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
 	n2 = random.choice(chromosome.inputNeurons + chromosome.hiddenNeurons + chromosome.outputNeurons)
 
-	neuron1=n1.number
-	neuron2=n2.number
+	neuron1 = n1.number
+	neuron2 = n2.number
 
 	#print("neuron1", neuron1)
 	#print("neuron2", neuron2)

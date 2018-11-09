@@ -19,6 +19,8 @@ class link:
         self.isEnabled = isEnabled
         self.weight = weight
         self.innovation = innovation
+    def __lt__(self, other):
+         return self.innovation < other.innovation
     
     def showLink(self):
         print("Neuron 1 ", self.neuron1)
@@ -35,11 +37,14 @@ class chromosome:
         self.outputNeurons = []
         self.hiddenNeurons = []
         self.links = []
+        self.fitnessValue = 0
         for i in range(145):
             self.inputNeurons.append(neuron(i))
         self.inputNeurons[144].val=1        #bias neuron
         for i in range(2000, 2000+12):
             self.outputNeurons.append(neuron(i))
+    def __lt__(self, other):
+         return self.fitnessValue < other.fitnessValue
 
     def showChromosome(self):
         print("Input: ",end='')
