@@ -4,7 +4,7 @@ from copy import deepcopy
 import mutate
 import random
 
-COMPATIBILITY_RANGE = 1;
+COMPATIBILITY_RANGE = 3;
 C1 = 1
 C2 = 1
 C3 = 1
@@ -19,22 +19,25 @@ def compatibilityDistance(representative, newChromosome):
 
 
 	excess, disjoint, W, i , j = 0.0, 0.0, 0.0, 0, 0
-
+	divisorForWeightDifference = 0
 	while(i < len(representativeLinks) and j < len(newChromosomeLinks)):
 		if(representativeLinks[i] == newChromosomeLinks[j]):
+			W = W + abs(representativeLinks[i].weight - newChromosomeLinks[j].weight)
+			divisorForWeightDifference += 1
 			i = i + 1
 			j = j + 1
-			W = W + abs(representativeLinks[i].weight - newChromosomeLinks[j].weight)
 		elif(representativeLinks[i] < newChromosomeLinks[j]):
 			i = i + 1
 			disjoint = disjoint + 1
 		else:
 			j = j + 1
-			excess = excess + 1
+			disjoint = disjoint + 1
+
+	excess = len(representativeLinks[i:]) + len(newChromosomeLinks[j:])
 	N = float( max( len(representativeLinks), len(newChromosomeLinks) ) )
 	if N < 20:
 		N = 1.0
-	distance = float(C1 * excess / N) + float(C2 * disjoint / N) + float(C3 * W)
+	distance = float(C1 * excess / N) + float(C2 * disjoint / N) + float(C3 * W / divisorForWeightDifference) #min(i, j) to take avg
 	return distance
 
 class species:
