@@ -4,7 +4,7 @@ from copy import deepcopy
 import mutate
 import random
 
-COMPATIBILITY_RANGE = 10;
+COMPATIBILITY_RANGE = 1;
 C1 = 1
 C2 = 1
 C3 = 1
@@ -24,7 +24,7 @@ def compatibilityDistance(representative, newChromosome):
 		if(representativeLinks[i] == newChromosomeLinks[j]):
 			i = i + 1
 			j = j + 1
-			#W = W + abs(representativeLinks[i].innovation - newChromosomeLinks[i].innovation)
+			W = W + abs(representativeLinks[i].weight - newChromosomeLinks[j].weight)
 		elif(representativeLinks[i] < newChromosomeLinks[j]):
 			i = i + 1
 			disjoint = disjoint + 1
@@ -42,7 +42,7 @@ class species:
 		self.subpopulation = []
 		self.representative = representative
 		self.subpopulation.append(representative)
-		self.numIndividuals=0
+		self.numIndividuals=1
 	def addChromosome(self, newChromosome):
 		self.numIndividuals+=1
 		self.subpopulation.append(newChromosome)
