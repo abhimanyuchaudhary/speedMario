@@ -75,6 +75,7 @@ def getNetworkOutput(nn,input):
 
 population=population(5)
 population.initializePopulation()
+population.printPopulation()
 count=0
 prev_xpos=0
 done = False

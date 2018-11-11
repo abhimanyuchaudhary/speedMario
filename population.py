@@ -2,6 +2,7 @@ from chromosome import link, chromosome, neuron
 import _pickle as cPickle
 from copy import deepcopy
 import mutate
+import random
 
 COMPATIBILITY_RANGE = 10;
 C1 = 1
@@ -20,11 +21,11 @@ def compatibilityDistance(representative, newChromosome):
 	excess, disjoint, W, i , j = 0.0, 0.0, 0.0, 0, 0
 
 	while(i < len(representativeLinks) and j < len(newChromosomeLinks)):
-		if(representativeLinks[i] == newChromosomeLinks[i]):
+		if(representativeLinks[i] == newChromosomeLinks[j]):
 			i = i + 1
 			j = j + 1
-			W = W + abs(representativeLinks[i].innovation - newChromosomeLinks[i].innovation)
-		elif(representativeLinks[i] < newChromosomeLinks[i]):
+			#W = W + abs(representativeLinks[i].innovation - newChromosomeLinks[i].innovation)
+		elif(representativeLinks[i] < newChromosomeLinks[j]):
 			i = i + 1
 			disjoint = disjoint + 1
 		else:
@@ -34,20 +35,22 @@ def compatibilityDistance(representative, newChromosome):
 	if N < 20:
 		N = 1.0
 	distance = float(C1 * excess / N) + float(C2 * disjoint / N) + float(C3 * W)
+	return distance
 
 class species:
 	def __init__(self, representative):
 		self.subpopulation = []
 		self.representative = representative
 		self.subpopulation.append(representative)
+		self.numIndividuals=0
 	def addChromosome(self, newChromosome):
+		self.numIndividuals+=1
 		self.subpopulation.append(newChromosome)
 
 class population:
 	def __init__(self, N):
 		self.generationNumber = 0;
 		self.numberOfIndividuals = N
-		self.individuals = []
 		self.index=0
 		self.populationSpecies = []
 
@@ -55,21 +58,23 @@ class population:
 		print("ADD POPULATION CHANGE HERE")
 		
 	def addChromosome(self, chromosome):
-		toAdd = True
-		for species in self.populationSpecies:
-			if(compatibilityDistance(chromosome, species.representative) < COMPATIBILITY_RANGE):
-				species.append(deepcopy(chromosome))
-				toAdd = False
-		if(toAdd == True):
-			self.populationSpecies.append(deepcopy(species(chromosome)))
+		#toAdd = True
+		for spec in self.populationSpecies:
+			print(compatibilityDistance(chromosome, spec.representative))
+			if(compatibilityDistance(chromosome, spec.representative) < COMPATIBILITY_RANGE):
+				spec.addChromosome(deepcopy(chromosome))
+				#toAdd = False
+				return;
+		#if(toAdd == True):
+		self.populationSpecies.append(deepcopy(species(chromosome)))
 
 
 	def initializePopulation(self):
 		for i in range(self.numberOfIndividuals):
 			temp = deepcopy(chromosome())
-			for i in range(100):
-				temp=mutate.mutate(temp,1)
-			self.individuals.append(temp)
+			for i in range(500):
+				temp=mutate.mutate(temp,random.randrange(0,10000))
+			self.addChromosome(temp)
 	
 	def save(self):
 		pickle_out = open("savedPopulations/generation"+str(self.generationNumber)+".gen", "wb+")
@@ -90,12 +95,19 @@ class population:
 	
 	def printPopulation(self):
 		print(self.generationNumber, self.numberOfIndividuals)
+		for i in range(len(self.populationSpecies)):
+			print("Species",i,":",self.populationSpecies[i].numIndividuals)
 
 	def fetchNext(self):
 		if self.index>=self.numberOfIndividuals:
 			return;
+		tmp=self.index
 		self.index+=1
-		return self.individuals[self.index-1]
+		for species in self.populationSpecies:
+			if tmp>=species.numIndividuals:
+				tmp = tmp-species.numIndividuals
+			else:
+				return species.subpopulation[tmp]
 
 
 # p = population(10)
