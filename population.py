@@ -1,13 +1,13 @@
 from chromosome import link, chromosome, neuron
 import _pickle as cPickle
 from copy import deepcopy
-import mutate
-import random
+import mutate, crossover
+import random, math
 
-COMPATIBILITY_RANGE = 3;
+COMPATIBILITY_RANGE = 4;
 C1 = 1
-C2 = 1
-C3 = 1
+C2 = 2
+C3 = 0.1
 def compatibilityDistance(representative, newChromosome):
 	''' See excessDisjointWeight in https://github.com/basanthjenuhb/Mario-AI/blob/master/neat.py
 	'''
@@ -19,7 +19,7 @@ def compatibilityDistance(representative, newChromosome):
 
 
 	excess, disjoint, W, i , j = 0.0, 0.0, 0.0, 0, 0
-	divisorForWeightDifference = 0
+	divisorForWeightDifference = 1
 	while(i < len(representativeLinks) and j < len(newChromosomeLinks)):
 		if(representativeLinks[i] == newChromosomeLinks[j]):
 			W = W + abs(representativeLinks[i].weight - newChromosomeLinks[j].weight)
@@ -35,6 +35,7 @@ def compatibilityDistance(representative, newChromosome):
 
 	excess = len(representativeLinks[i:]) + len(newChromosomeLinks[j:])
 	N = float( max( len(representativeLinks), len(newChromosomeLinks) ) )
+	#print(disjoint,excess,N,W)
 	if N < 20:
 		N = 1.0
 	distance = float(C1 * excess / N) + float(C2 * disjoint / N) + float(C3 * W / divisorForWeightDifference) 
@@ -45,25 +46,108 @@ class species:
 		self.subpopulation = []
 		self.representative = representative
 		self.subpopulation.append(representative)
-		self.numIndividuals=1
+		self.avgFitness=0
 	def addChromosome(self, newChromosome):
-		self.numIndividuals+=1
 		self.subpopulation.append(newChromosome)
 
+	def removeHalf(self):
+		self.subpopulation=sorted(self.subpopulation)
+		if len(self.subpopulation)==1 and self.subpopulation[0].fitnessValue==population.maxFitness:
+			return len(self.subpopulation)
+		self.subpopulation=self.subpopulation[:math.floor(len(self.subpopulation)/2)]
+		return len(self.subpopulation)
+
+	def calcAvgFitness(self):
+		if len(self.subpopulation)<1:
+			return 0
+		for chrom in self.subpopulation:
+			self.avgFitness+=chrom.fitnessValue
+		self.avgFitness=self.avgFitness/len(self.subpopulation)
+		return self.avgFitness
+
+	def getChild(self):
+		PROBABILITY_crossover=0.75
+
+		if len(self.subpopulation)<1:
+			return
+
+		if random.random()<PROBABILITY_crossover:
+			parent1=self.subpopulation[random.randrange(0,len(self.subpopulation))]
+			parent2=self.subpopulation[random.randrange(0,len(self.subpopulation))]
+			child=crossover.crossover(parent1,parent2)
+			return child
+		else:
+			child=deepcopy(self.subpopulation[random.randrange(0,len(self.subpopulation))])
+			return child
+
 class population:
+	globalInnovationNumber=0
+	maxFitness=0
 	def __init__(self, N):
 		self.generationNumber = 0;
 		self.numberOfIndividuals = N
 		self.index=0
 		self.populationSpecies = []
 
-	def changeGeneration():
-		print("ADD POPULATION CHANGE HERE")
+	def nextGen(self):
+		totalAvgFit=0
+		remaining=0
+		avgPopFit=0
+		for spec in self.populationSpecies:
+			remaining+=spec.removeHalf()
+			tmp=spec.calcAvgFitness()
+			totalAvgFit+=tmp
+			avgPopFit+=(tmp*len(spec.subpopulation))
+		children=[]
+		#self.removeStale()
+		self.removeWeak()
 		
+
+		print()
+		print("Generation",self.generationNumber)
+		print("Max Fitness:",self.maxFitness)
+		print("Innovation Number:",self.globalInnovationNumber)
+		print("No. of Species:",len(self.populationSpecies))
+		print("Avg pop fitness:",avgPopFit/remaining)
+		print("Total Population:",self.index)
+		print()
+		
+
+		for spec in self.populationSpecies:
+			n=math.floor((spec.avgFitness/totalAvgFit)*self.numberOfIndividuals)
+			remaining+=n
+			for i in range(n):
+				ch=spec.getChild()
+				if ch:
+					self.globalInnovationNumber, ch = mutate.mutate(ch,self.globalInnovationNumber)
+					children.append(ch)
+
+		for i in range(self.numberOfIndividuals-remaining):
+			spec=self.populationSpecies[random.randrange(0,len(self.populationSpecies))]
+			ch=spec.getChild()
+			if ch:
+				self.globalInnovationNumber, ch = mutate.mutate(ch,self.globalInnovationNumber)
+				children.append(ch)
+
+		for child in children:
+			self.addChromosome(child)
+
+		self.generationNumber+=1
+		self.index=0
+
+	
+	def removeWeak(self):
+		specList=[]
+		for spec in self.populationSpecies:
+			if len(spec.subpopulation)>=1:
+				specList.append(spec)
+
+		self.populationSpecies=specList
+
 	def addChromosome(self, chromosome):
 		#toAdd = True
 		for spec in self.populationSpecies:
-			print(compatibilityDistance(chromosome, spec.representative))
+			#print(compatibilityDistance(chromosome, spec.representative))
 			if(compatibilityDistance(chromosome, spec.representative) < COMPATIBILITY_RANGE):
 				spec.addChromosome(deepcopy(chromosome))
 				#toAdd = False
@@ -75,9 +159,10 @@ class population:
 	def initializePopulation(self):
 		for i in range(self.numberOfIndividuals):
 			temp = deepcopy(chromosome())
-			for i in range(500):
-				temp=mutate.mutate(temp,random.randrange(0,10000))
+			#for j in range(100):
+			self.globalInnovationNumber, temp=mutate.mutate(temp,self.globalInnovationNumber)
 			self.addChromosome(temp)
+			#print(self.globalInnovationNumber)
 	
 	def save(self):
 		pickle_out = open("savedPopulations/generation"+str(self.generationNumber)+".gen", "wb+")
@@ -107,8 +192,8 @@ class population:
 		tmp=self.index
 		self.index+=1
 		for species in self.populationSpecies:
-			if tmp>=species.numIndividuals:
-				tmp = tmp-species.numIndividuals
+			if tmp>=len(species.subpopulation):
+				tmp = tmp-len(species.subpopulation)
 			else:
 				return species.subpopulation[tmp]
 

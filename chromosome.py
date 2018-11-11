@@ -1,4 +1,6 @@
 
+maxhiddennodes=0
+
 class neuron:
     def __init__(self,n):
         self.number=n
@@ -28,10 +30,11 @@ class link:
         print("Neuron 1 ", self.neuron1)
         print("Neuron 2 ", self.neuron2)
         print("weight", self.weight)
-        print("Generation", self.innovation)
+        print("Innovation", self.innovation)
         print()
 
 class chromosome:
+    hiddenNeuronNumber=145
 
     def __init__(self):
         self.inputNeurons = []
@@ -46,7 +49,7 @@ class chromosome:
         for i in range(2000, 2000+12):
             self.outputNeurons.append(neuron(i))
     def __lt__(self, other):
-         return self.fitnessValue < other.fitnessValue
+         return self.fitnessValue > other.fitnessValue
     def __eq__(self, other):
         return self.fitnessValue == other.fitnessValue
 
@@ -66,14 +69,25 @@ class chromosome:
         for i in self.links:
             i.showLink()
 
-    def addIncomingLinkToNeurons(self,l,n):
-        if not l.neuron2==n or n<len(self.inputNeurons):
-            return
-        if 2012>n and n>=2000:
-            self.outputNeurons[n-2000].addLink(l)
+    def addLink(self,l):
+        self.links.append(l)
+        self.addIncomingLinkToNeurons(l,len(self.links)-1)
 
-        if len(self.hiddenNeurons)+len(self.inputNeurons)>n and n>=len(self.inputNeurons):
-            self.hiddenNeurons[n-len(self.inputNeurons)].addLink(l)
+    def addIncomingLinkToNeurons(self,l,ind):
+        if l.neuron2<len(self.inputNeurons):
+            return
+        n=l.neuron2
+        if 2012>n and n>=2000:
+            self.outputNeurons[n-2000].addLink(ind)
+            return
+
+        for i in range(len(self.hiddenNeurons)):
+            if self.hiddenNeurons[i].number==n:
+                self.hiddenNeurons[i].addLink(ind)
+                return
+        x=neuron(n)
+        x.addLink(ind)
+        self.hiddenNeurons.append(x)
 
 
     def getValue(self,n):

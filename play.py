@@ -45,9 +45,10 @@ def getNetworkOutput(nn,input):
     for i in range(len(nn.hiddenNeurons)):
         S=0
         for link in nn.hiddenNeurons[i].incomingLinks:
-            if link.isEnabled:
-                value=nn.getValue(link.neuron1)
-                S=S+link.weight*value
+            if nn.links[link].isEnabled:
+                #link.neuron1<link.neuron2 always
+                value=nn.getValue(nn.links[link].neuron1)
+                S=S+nn.links[link].weight*value
         nn.hiddenNeurons[i].val=sigmoid(S)
 
 
@@ -56,9 +57,10 @@ def getNetworkOutput(nn,input):
     for i in range(len(nn.outputNeurons)):
         S=0
         for link in nn.outputNeurons[i].incomingLinks:
-            if link.isEnabled:
-                value=nn.getValue(link.neuron1)
-                S=S+link.weight*value
+            if nn.links[link].isEnabled:
+                #link.neuron1<link.neuron2 always
+                value=nn.getValue(nn.links[link].neuron1)
+                S=S+nn.links[link].weight*value
         nn.outputNeurons[i].val=sigmoid(S)
         if maxVal<nn.outputNeurons[i].val:
             maxVal=nn.outputNeurons[i].val
@@ -73,34 +75,37 @@ def getNetworkOutput(nn,input):
 
 
 
-population=population(5)
+population=population(50)
 population.initializePopulation()
-population.printPopulation()
+#population.printPopulation()
 count=0
 prev_xpos=0
 done = False
 start = True
-for step in range(1000):
+while 1>0:
     #Checks if first NN is to be loaded
     if(start):
         start = False
         state = env.reset()
         currentNN = population.fetchNext()#load new nn
         if not currentNN:
-            #remove weak individuals, generate new population
             break
         state, reward, done, info = env.step(0)
 
     #Checks if NN is done running or Mario stays still for 10 counts
-    if done or count>10:
+    if info['life']<3 or done or count>15:
         count = 0
-        currentNN.fitnessValue = prev_xpos #set fitnessValue of NN
-        print("Reset")
+        if currentNN.fitnessValue>population.maxFitness:
+            population.maxFitness=currentNN.fitnessValue
+        #print("R")
         state = env.reset()
         currentNN = population.fetchNext()#load new nn
         if not currentNN:
             #remove weak individuals, generate new population
-            break
+            #break
+            
+            population.nextGen()
+            currentNN=population.fetchNext()
         state, reward, done, info = env.step(0)
 
       
@@ -109,7 +114,7 @@ for step in range(1000):
     state, reward, done, info = env.step(M)#play M
     time.sleep(.010)
 
-       
+    currentNN.fitnessValue = max(info['x_pos'],currentNN.fitnessValue)
     if prev_xpos+4>=info['x_pos']:
         count+=1
     else:

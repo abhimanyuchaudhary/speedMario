@@ -1,22 +1,24 @@
 from chromosome import link, chromosome
 from copy import deepcopy
+import mutate, population
 import random
 
-PROBABILITY_fitParent = 0.5
+PROBABILITY_fitParent = 0.8
 
 def crossover(c1, c2):
 	child = chromosome()
 	childLinks = []
-	fitParent = chromosome()
-	nonFitParent = chromosome()
+	fitParent = 0
+	nonFitParent = 0
 
-	if(c1.fitnessValue <= c2.fitnessValue):
+	if(c1.fitnessValue >= c2.fitnessValue):
 		fitParent = c1
 		nonFitParent = c2
 	else:
 		fitParent = c2
 		nonFitParent = c1
 
+	#print(fitParent.fitnessValue,nonFitParent.fitnessValue)
 	fitParentLinks = deepcopy(fitParent.links)
 	nonFitParentLinks = deepcopy(nonFitParent.links)
 
@@ -28,27 +30,17 @@ def crossover(c1, c2):
 	while(i < len(fitParentLinks) and j < len(nonFitParentLinks)):
 		if(fitParentLinks[i].innovation == nonFitParentLinks[j].innovation):
 			if(random.random() < PROBABILITY_fitParent):
-				childLinks.append(fitParentLinks[i])
+				child.addLink(fitParentLinks[i])
 			else:
-				childLinks.append(nonFitParentLinks[i])
+				child.addLink(nonFitParentLinks[i])
 			i = i + 1
 			j = j + 1
 
 		elif(fitParentLinks[i].innovation < nonFitParentLinks[j].innovation):
-			childLinks.append(fitParentLinks[i])
+			child.addLink(fitParentLinks[i])
 			i = i + 1
 		else:
 			j = j + 1
 
-	child.links = deepcopy(childLinks)
+	#child.links = deepcopy(childLinks)
 	return child
-
-
-
-
-
-
-
-
-
-	return c1
