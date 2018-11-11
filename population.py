@@ -37,7 +37,7 @@ def compatibilityDistance(representative, newChromosome):
 	N = float( max( len(representativeLinks), len(newChromosomeLinks) ) )
 	if N < 20:
 		N = 1.0
-	distance = float(C1 * excess / N) + float(C2 * disjoint / N) + float(C3 * W / divisorForWeightDifference) #min(i, j) to take avg
+	distance = float(C1 * excess / N) + float(C2 * disjoint / N) + float(C3 * W / divisorForWeightDifference) 
 	return distance
 
 class species:
