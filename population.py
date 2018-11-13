@@ -47,19 +47,26 @@ class species:
 		self.representative = representative
 		self.subpopulation.append(representative)
 		self.avgFitness=0
+		self.staleness=0
+		self.prevTopFit=0
 	def addChromosome(self, newChromosome):
 		self.subpopulation.append(newChromosome)
 
 	def removeHalf(self):
 		self.subpopulation=sorted(self.subpopulation)
-		if len(self.subpopulation)==1 and self.subpopulation[0].fitnessValue==population.maxFitness:
+		if len(self.subpopulation)==1 and self.subpopulation[0].fitnessValue>=population.maxFitness:
 			return len(self.subpopulation)
 		self.subpopulation=self.subpopulation[:math.floor(len(self.subpopulation)/2)]
 		return len(self.subpopulation)
 
+	def removeAllExceptOne(self):
+		self.subpopulation=sorted(self.subpopulation)
+		self.subpopulation=self.subpopulation[:1]
+
 	def calcAvgFitness(self):
 		if len(self.subpopulation)<1:
 			return 0
+		self.avgFitness=0
 		for chrom in self.subpopulation:
 			self.avgFitness+=chrom.fitnessValue
 		self.avgFitness=self.avgFitness/len(self.subpopulation)
@@ -68,8 +75,6 @@ class species:
 	def getChild(self):
 		PROBABILITY_crossover=0.75
 
-		if len(self.subpopulation)<1:
-			return
 
 		if random.random()<PROBABILITY_crossover:
 			parent1=self.subpopulation[random.randrange(0,len(self.subpopulation))]
@@ -93,14 +98,14 @@ class population:
 		totalAvgFit=0
 		remaining=0
 		avgPopFit=0
+		self.removeStale()
+		self.removeWeak()
 		for spec in self.populationSpecies:
 			remaining+=spec.removeHalf()
 			tmp=spec.calcAvgFitness()
 			totalAvgFit+=tmp
 			avgPopFit+=(tmp*len(spec.subpopulation))
 		children=[]
-		#self.removeStale()
-		self.removeWeak()
 		
 
 		print()
@@ -109,40 +114,58 @@ class population:
 		print("Innovation Number:",self.globalInnovationNumber)
 		print("No. of Species:",len(self.populationSpecies))
 		print("Avg pop fitness:",avgPopFit/remaining)
-		print("Total Population:",self.index)
+		print("Total Population:",self.index-1)
 		print()
 		
 
 		for spec in self.populationSpecies:
-			n=math.floor((spec.avgFitness/totalAvgFit)*self.numberOfIndividuals)
+			n=math.floor(spec.avgFitness/totalAvgFit)*self.numberOfIndividuals-1
 			remaining+=n
 			for i in range(n):
 				ch=spec.getChild()
 				if ch:
 					self.globalInnovationNumber, ch = mutate.mutate(ch,self.globalInnovationNumber)
 					children.append(ch)
+			spec.removeAllExceptOne()
 
-		for i in range(self.numberOfIndividuals-remaining):
+		while self.numberOfIndividuals>len(self.populationSpecies)+len(children):
 			spec=self.populationSpecies[random.randrange(0,len(self.populationSpecies))]
 			ch=spec.getChild()
 			if ch:
 				self.globalInnovationNumber, ch = mutate.mutate(ch,self.globalInnovationNumber)
 				children.append(ch)
 
-		for child in children:
-			self.addChromosome(child)
+		M=self.numberOfIndividuals-len(self.populationSpecies)
+		for i in range(0,M):
+			self.addChromosome(children[i])
 
 		self.generationNumber+=1
 		self.index=0
+		self.maxFitness=0
 
 	
 	def removeWeak(self):
 		specList=[]
 		for spec in self.populationSpecies:
 			if len(spec.subpopulation)>=1:
+				#print("removeWeak")
 				specList.append(spec)
 
 		self.populationSpecies=specList
+
+	def removeStale(self):
+		specList=[]
+		for spec in self.populationSpecies:
+			if spec.subpopulation[0].fitnessValue>spec.prevTopFit:
+				spec.staleness=0
+			else:
+				spec.staleness+=1
+			spec.prevTopFit=spec.subpopulation[0].fitnessValue
+			if spec.staleness<15 or spec.prevTopFit>=population.maxFitness:
+				specList.append(spec)
+		self.populationSpecies=specList
+
+
 
 	def addChromosome(self, chromosome):
 		#toAdd = True
@@ -187,8 +210,6 @@ class population:
 			print("Species",i,":",self.populationSpecies[i].numIndividuals)
 
 	def fetchNext(self):
-		if self.index>=self.numberOfIndividuals:
-			return;
 		tmp=self.index
 		self.index+=1
 		for species in self.populationSpecies:
@@ -196,7 +217,7 @@ class population:
 				tmp = tmp-len(species.subpopulation)
 			else:
 				return species.subpopulation[tmp]
-
+		return
 
 # p = population(10)
 # p.printPopulation()

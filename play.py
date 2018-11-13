@@ -93,7 +93,7 @@ while 1>0:
         state, reward, done, info = env.step(0)
 
     #Checks if NN is done running or Mario stays still for 10 counts
-    if info['life']<3 or done or count>15:
+    if info['life']<3 or done or count>20:
         count = 0
         if currentNN.fitnessValue>population.maxFitness:
             population.maxFitness=currentNN.fitnessValue
@@ -103,7 +103,6 @@ while 1>0:
         if not currentNN:
             #remove weak individuals, generate new population
             #break
-            
             population.nextGen()
             currentNN=population.fetchNext()
         state, reward, done, info = env.step(0)
@@ -112,14 +111,19 @@ while 1>0:
     #use input to calculate next move M  
     M=getNetworkOutput(currentNN,info['inp'])
     state, reward, done, info = env.step(M)#play M
-    time.sleep(.010)
+    #time.sleep(.010)
 
-    currentNN.fitnessValue = max(info['x_pos'],currentNN.fitnessValue)
-    if prev_xpos+4>=info['x_pos']:
+    xval=info['x_pos']
+    if xval==2226:
+        xval=2146
+
+
+    if currentNN.fitnessValue>=xval:
         count+=1
     else:
         count=0
-    prev_xpos=info['x_pos']
+    prev_xpos=xval
+    currentNN.fitnessValue = max(xval,currentNN.fitnessValue)
 
     #show_info(info)
     #print(len(info['inp']))
