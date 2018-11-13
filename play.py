@@ -111,7 +111,7 @@ while 1>0:
     #use input to calculate next move M  
     M=getNetworkOutput(currentNN,info['inp'])
     state, reward, done, info = env.step(M)#play M
-    #time.sleep(.010)
+    time.sleep(.010)
 
     xval=info['x_pos']
     if xval==2226:
