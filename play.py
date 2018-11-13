@@ -93,7 +93,8 @@ while 1>0:
         state, reward, done, info = env.step(0)
 
     #Checks if NN is done running or Mario stays still for 10 counts
-    if info['life']<3 or done or count>20:
+    if info['life']<3 or done or count>25:
+        #print("life",info['life'],"count",count)
         count = 0
         if currentNN.fitnessValue>population.maxFitness:
             population.maxFitness=currentNN.fitnessValue
@@ -118,7 +119,7 @@ while 1>0:
         xval=2146
 
 
-    if currentNN.fitnessValue>=xval:
+    if currentNN.fitnessValue+2>=xval:
         count+=1
     else:
         count=0

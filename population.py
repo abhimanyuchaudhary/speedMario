@@ -4,7 +4,7 @@ from copy import deepcopy
 import mutate, crossover
 import random, math
 
-COMPATIBILITY_RANGE = 4;
+COMPATIBILITY_RANGE = 6;
 C1 = 1
 C2 = 2
 C3 = 0.1
@@ -62,6 +62,7 @@ class species:
 	def removeAllExceptOne(self):
 		self.subpopulation=sorted(self.subpopulation)
 		self.subpopulation=self.subpopulation[:1]
+		self.representative=self.subpopulation[0]
 
 	def calcAvgFitness(self):
 		if len(self.subpopulation)<1:
@@ -98,14 +99,14 @@ class population:
 		totalAvgFit=0
 		remaining=0
 		avgPopFit=0
-		self.removeStale()
-		self.removeWeak()
 		for spec in self.populationSpecies:
 			remaining+=spec.removeHalf()
 			tmp=spec.calcAvgFitness()
 			totalAvgFit+=tmp
 			avgPopFit+=(tmp*len(spec.subpopulation))
 		children=[]
+		#self.removeStale()
+		self.removeWeak()
 		
 
 		print()
@@ -115,12 +116,10 @@ class population:
 		print("No. of Species:",len(self.populationSpecies))
 		print("Avg pop fitness:",avgPopFit/remaining)
 		print("Total Population:",self.index-1)
-		print()
 		
 
 		for spec in self.populationSpecies:
 			n=math.floor(spec.avgFitness/totalAvgFit)*self.numberOfIndividuals-1
-			remaining+=n
 			for i in range(n):
 				ch=spec.getChild()
 				if ch:
@@ -138,6 +137,8 @@ class population:
 		M=self.numberOfIndividuals-len(self.populationSpecies)
 		for i in range(0,M):
 			self.addChromosome(children[i])
+		print("Children produced:",M)
+		print()
 
 		self.generationNumber+=1
 		self.index=0
@@ -161,7 +162,7 @@ class population:
 			else:
 				spec.staleness+=1
 			spec.prevTopFit=spec.subpopulation[0].fitnessValue
-			if spec.staleness<15 or spec.prevTopFit>=population.maxFitness:
+			if spec.staleness<10 or spec.prevTopFit>=population.maxFitness:
 				specList.append(spec)
 		self.populationSpecies=specList
 
