@@ -4,7 +4,7 @@ from copy import deepcopy
 import mutate, crossover
 import random, math
 
-COMPATIBILITY_RANGE = 6;
+COMPATIBILITY_RANGE = 4
 C1 = 1
 C2 = 2
 C3 = 0.1
