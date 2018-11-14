@@ -74,9 +74,13 @@ def getNetworkOutput(nn,input):
     return maxIndex
 
 
-
 population=population(50)
-population.initializePopulation()
+print("Enter generation number to load or -1 to randomly initialize")
+genNumber = int(input())
+if(genNumber == -1):
+    population.initializePopulation()
+else:
+    population.load(genNumber)
 #population.printPopulation()
 count=0
 prev_xpos=0

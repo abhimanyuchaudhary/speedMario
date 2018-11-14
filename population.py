@@ -127,11 +127,11 @@ class population:
 					children.append(ch)
 			spec.removeAllExceptOne()
 
-		while self.numberOfIndividuals>len(children)+len(self.populationSpecies):
-			spec=self.populationSpecies[random.randrange(0,len(self.populationSpecies))]
-			ch=spec.getChild()
+		while self.numberOfIndividuals > len(children) + len(self.populationSpecies):
+			spec = self.populationSpecies[random.randrange(0, len(self.populationSpecies))]
+			ch = spec.getChild()
 			if ch:
-				self.globalInnovationNumber, ch = mutate.mutate(ch,self.globalInnovationNumber)
+				self.globalInnovationNumber, ch = mutate.mutate(ch, self.globalInnovationNumber)
 				children.append(ch)
 
 		M=self.numberOfIndividuals-len(self.populationSpecies)
@@ -143,6 +143,8 @@ class population:
 		self.generationNumber+=1
 		self.index=0
 		self.maxFitness=0
+
+		self.save()
 
 	
 	def removeWeak(self):
@@ -203,7 +205,9 @@ class population:
 		other = cPickle.load(pickle_in)
 		self.generationNumber = deepcopy(other.generationNumber)
 		self.numberOfIndividuals = deepcopy(other.numberOfIndividuals)
-		self.individuals = deepcopy(other.individuals)
+		self.index = deepcopy(other.index)
+		self.populationSpecies = deepcopy(other.populationSpecies)
+
 	
 	def printPopulation(self):
 		print(self.generationNumber, self.numberOfIndividuals)
