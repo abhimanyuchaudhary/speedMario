@@ -4,7 +4,7 @@ from copy import deepcopy
 import mutate, crossover
 import random, math
 
-COMPATIBILITY_RANGE = 4
+COMPATIBILITY_RANGE = 4.5
 C1 = 1
 C2 = 2
 C3 = 0.1
@@ -127,7 +127,7 @@ class population:
 					children.append(ch)
 			spec.removeAllExceptOne()
 
-		while self.numberOfIndividuals>len(self.populationSpecies)+len(children):
+		while self.numberOfIndividuals>len(children)+len(self.populationSpecies):
 			spec=self.populationSpecies[random.randrange(0,len(self.populationSpecies))]
 			ch=spec.getChild()
 			if ch:
