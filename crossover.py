@@ -41,6 +41,9 @@ def crossover(c1, c2):
 			i = i + 1
 		else:
 			j = j + 1
+	#maybe this will fix
+	for leftOverGenes in range(i, len(fitParentLinks)):
+		child.addLink(fitParentLinks[leftOverGenes])
 
 	#child.links = deepcopy(childLinks)
 	return child
