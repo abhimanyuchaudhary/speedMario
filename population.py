@@ -87,9 +87,9 @@ class species:
 			return child
 
 class population:
-	globalInnovationNumber=0
-	maxFitness=0
 	def __init__(self, N):
+		self.maxFitness=0
+		self.globalInnovationNumber=0
 		self.generationNumber = 0;
 		self.numberOfIndividuals = N
 		self.index=0
@@ -207,6 +207,8 @@ class population:
 		self.numberOfIndividuals = deepcopy(other.numberOfIndividuals)
 		self.index = deepcopy(other.index)
 		self.populationSpecies = deepcopy(other.populationSpecies)
+		self.globalInnovationNumber = deepcopy(other.globalInnovationNumber)
+		self.maxFitness = deepcopy(other.maxFitness)
 
 	
 	def printPopulation(self):

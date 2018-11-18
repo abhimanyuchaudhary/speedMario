@@ -3,7 +3,7 @@ from copy import deepcopy
 import mutate, population
 import random
 
-PROBABILITY_fitParent = 0.8
+PROBABILITY_fitParent = 0.5
 
 def crossover(c1, c2):
 	child = chromosome()
