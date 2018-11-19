@@ -485,7 +485,7 @@ class SuperMarioBrosEnv(NESEnv):
                     distx = abs(sprites[i][0] - (self._x_position+dx))
                     disty = abs(sprites[i][1] - (self._y_position+dy))
                     if distx <= 8 and disty <= 8:
-                        inputs[len(inputs)-1]=-1#[#inputs] = -1
+                        inputs[len(inputs)-1]=2#[#inputs] = -1
        
         #--mariovx = memory.read_s8(0x7B)
         #--mariovy = memory.read_s8(0x7D)
