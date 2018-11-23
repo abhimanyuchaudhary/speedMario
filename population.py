@@ -87,9 +87,9 @@ class species:
 			return child
 
 class population:
+	maxFitness=0
+	globalInnovationNumber=0
 	def __init__(self, N):
-		self.maxFitness=0
-		self.globalInnovationNumber=0
 		self.generationNumber = 0;
 		self.numberOfIndividuals = N
 		self.index=0

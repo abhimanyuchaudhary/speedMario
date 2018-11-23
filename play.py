@@ -74,7 +74,7 @@ def getNetworkOutput(nn,input):
     return maxIndex
 
 
-population=population(50)
+population=population(300)
 print("Enter generation number to load or -1 to randomly initialize")
 genNumber = int(input())
 if(genNumber == -1):
@@ -117,7 +117,7 @@ while 1>0:
     
     M=getNetworkOutput(currentNN,info['inp'])
     state, reward, done, info = env.step(M)#play M
-    time.sleep(.010)
+
 
     xval=info['x_pos']
     if xval==2226:
