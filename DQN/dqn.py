@@ -4,11 +4,13 @@ import torch.nn.functional as f
 import torch.optim as optim
 import numpy as np
 import dnq
+import _pickle as cPickle
 import random
+from copy import deepcopy
 
 class mario():
 	def __init__(self, gamma, learningRate, minEps = 0.01, memorySize = 1000, maxEps = 1.0, actionSpace = list(range(0, 12)), epsDecayRate = 0.001):
-		self.Gamma = gamma
+		self.gamma = gamma
 		self.Eps = maxEps
 		self.minEps = minEps
 		self.learningRate = learningRate
@@ -16,7 +18,7 @@ class mario():
 		self.memorySize = memorySize
 		self.memoryCounter = 0
 		self.Q_eval = dnq(alpha)
-		self.Q_next(dnq(alpha))
+		self.Q_next = dnq(alpha)
 		self.recallMemory = []
 		self.steps = 0
 		self.learnStepCounter = 0
@@ -68,8 +70,30 @@ class mario():
 		updateEps()
 
 		loss = self.Q_eval.loss(Qtarget, Qvaluepredicted).to(self.Q_eval.device)
-        loss.backward()
-        self.Q_eval.optimizer.step()
-        self.learnStepCounter += 1
+		loss.backward()
+		self.Q_eval.optimizer.step()
+		self.learnStepCounter += 1
+
+    def save(self, agentNum):
+		pickle_out = open("savedAgent/agent"+str(agentNum)+".ag", "wb+")
+		cPickle.dump(self, pickle_out)
+	def load(self, agentNum):
+		pickle_in = open("savedPopulations/generation"+str(generationNumber)+".gen", "rb")
+		other = cPickle.load(pickle_in)
+		self.gamma = deepcopy(other.gamma)
+		self.Eps = deepcopy(other.Eps)
+		self.minEps = deepcopy(other.minEps)
+		self.learningRate = deepcopy(other.learningRate)
+		self.actionSpace = deepcopy(other.actionSpace)
+		self.memorySize = deepcopy(other.memorySize)
+		self.memoryCounter = deepcopy(other.memoryCounter)
+		self.Q_eval = deepcopy(other.Q_eval)
+		self.Q_next = deepcopy(other.Q_next)
+		self.recallMemory = deepcopy(other.recallMemory)
+		self.steps = deepcopy(other.steps)
+		self.learnStepCounter = deepcopy(other.learnStepCounter)
+		self.epsDecayRate = deepcopy(other.epsDecayRate)
+
+
 
 
