@@ -7,7 +7,7 @@ import dnq
 import random
 
 class mario():
-	def __init__(self, gamma, learningRate, minEps = 0.01, memorySize = 1000, maxEps = 1.0, actionSpace = list(range(0, 12))):
+	def __init__(self, gamma, learningRate, minEps = 0.01, memorySize = 1000, maxEps = 1.0, actionSpace = list(range(0, 12)), epsDecayRate = 0.001):
 		self.Gamma = gamma
 		self.Eps = maxEps
 		self.minEps = minEps
@@ -18,6 +18,9 @@ class mario():
 		self.Q_eval = dnq(alpha)
 		self.Q_next(dnq(alpha))
 		self.recallMemory = []
+		self.steps = 0
+		self.learnStepCounter = 0
+		self.epsDecayRate = epsDecayRate
 		for i in range(memorySize):
 			recallMemory.append((0, 0, 0, 0))
 
@@ -33,6 +36,7 @@ class mario():
 		else:
 			#using the middle frame, we're using 3
 			move = t.argmax(moveProbability[1]).item()
+		self.steps += 1
 
 	def getBatchFromMemory(self, batchSize):
 		total = self.memSize - self.memoryCounter
@@ -43,6 +47,9 @@ class mario():
 			assert(total == batchSize)
 			return np.array(self.recallMemory[memoryCounter:memoryCounter + batchSize])
 
+	def updateEps(self):
+		self.Eps = self.minEps + (1 - self.minEps) * np.exp(-self.epsDecayRate * self.Eps)
+
 	def learn(self, batchSize):
 		self.Q_eval.optimizer.zero()
 
@@ -51,6 +58,18 @@ class mario():
 		Qvaluepredicted = self.Q_eval.forward(list(batch[:, 0][:])).to(self.Q_eval.device)
 		Qnextvaluepredicted = self.Q_eval.forward(list(batch[:, 3][:])).to(self.Q_eval.device)
 
-		
+		#dim = 1 because middle frame?
+		bestAction = t.argmax(Qnextvaluepredicted, dim = 1).to(self.Q_eval.device)
+		rewards = t.Tensor(list(batch[:, 2])).to(self.Q_eval.device)
+
+		Qtarget = Qvaluepredicted
+		Qtarget[:, bestAction] = rewards + self.gamma*t.max(Qnextvaluepredicted[1])
+
+		updateEps()
+
+		loss = self.Q_eval.loss(Qtarget, Qvaluepredicted).to(self.Q_eval.device)
+        loss.backward()
+        self.Q_eval.optimizer.step()
+        self.learnStepCounter += 1
 
 
