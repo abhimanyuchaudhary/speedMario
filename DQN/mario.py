@@ -1,10 +1,11 @@
 import torch as t
 import torch.nn as nn
 import numpy as np
-import dnq
 import _pickle as cPickle
 import random
 from copy import deepcopy
+from dqn import DQN
+import collections
 
 class mario():
 	def __init__(self, gamma, learningRate, minEps = 0.01, memorySize = 1000, maxEps = 1.0, actionSpace = list(range(0, 12)), epsDecayRate = 0.001):
@@ -14,20 +15,22 @@ class mario():
 		self.learningRate = learningRate
 		self.actionSpace = actionSpace
 		self.memorySize = memorySize
-		self.memoryCounter = 0
-		self.Q_eval = dnq(alpha)
-		self.Q_next = dnq(alpha)
-		self.recallMemory = []
+		#self.memoryCounter = 0
+		self.Q_eval = DQN(learningRate)
+		self.Q_next = DQN(learningRate)
+		self.recallMemory = collections.deque(maxlen=self.memorySize)
 		self.steps = 0
 		self.learnStepCounter = 0
 		self.epsDecayRate = epsDecayRate
-		for i in range(memorySize):
-			recallMemory.append((0, 0, 0, 0))
+		#for i in range(memorySize):
+		#	self.recallMemory.append((0, 0, 0, 0))
 
 
 	def addToMemory(self, currState, action, reward, nextState):
-		self.recallMemory[self.memoryCounter] = (currState, action, reward, nextState)
-		self.memoryCounter = (self.memoryCounter + 1) % self.memorySize
+		self.recallMemory.append((currState, action, reward, nextState))
+		'''self.recallMemory[self.memoryCounter] = (currState, action, reward, nextState)
+		self.memoryCounter = (self.memoryCounter + 1) % self.memorySize'''
+
 
 	def makeMove(self, state):
 		moveProbability = self.Q_eval.forward(state)
@@ -39,18 +42,19 @@ class mario():
 		self.steps += 1
 
 	def getBatchFromMemory(self, batchSize):
-		total = self.memSize - self.memoryCounter
+		return random.sample(self.recallMemory,batchSize)
+		'''total = self.memSize - self.memoryCounter
 		if(total < batchSize):
 			assert(len(self.recallMemory[memoryCounter:] + self.recallMemory[:total-batchSize]) == batchSize)
 			return np.array(self.recallMemory[memoryCounter:] + self.recallMemory[:total-batchSize])
 		else:
 			assert(total == batchSize)
-			return np.array(self.recallMemory[memoryCounter:memoryCounter + batchSize])
+			return np.array(self.recallMemory[memoryCounter:memoryCounter + batchSize])'''
 
 	def updateEps(self):
 		self.Eps = self.minEps + (1 - self.minEps) * np.exp(-self.epsDecayRate * self.Eps)
 
-	def learn(self, batchSize):
+	def train(self, batchSize):
 		self.Q_eval.optimizer.zero()
 
 		batch = getBatchFromMemory(self, batchSize)
