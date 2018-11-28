@@ -16,8 +16,7 @@ import collections
 batch_size=20
 maxMemory=50
 network=mario(gamma=0.9, learningRate=0.003, memorySize=maxMemory)
-
-
+# network.load(890)
 
 #print(len(network.recallMemory))
 '''while len(network.recallMemory)<maxMemory:
@@ -62,7 +61,7 @@ network=mario(gamma=0.9, learningRate=0.003, memorySize=maxMemory)
 
 
 
-
+counter = 0
 while 1>0:
 	s0=env.reset()
 	done=False
@@ -73,6 +72,7 @@ while 1>0:
 		#print(torch.tensor(np.mean(s0[::2,::2],axis=2)).shape)
 		trackMovement.append(np.mean(s0[::2,::2],axis=2))
 	killCount=0
+
 
 	while 1>0:
 		if done or killCount>20:
@@ -86,18 +86,18 @@ while 1>0:
 
 		#act=env.action_space.sample()
 		act=int(network.makeMove(trackMovement))
-		#print(act)
+		
 
 		s1,reward,done,info=env.step(act)
 		xval=info['x_pos']
 		reward=xval-prev_xpos
 		if info['life']<3:
-			reward=reward-50
+			reward=-50
 			done=True
 
 		trackMovement_prev=copy.deepcopy(trackMovement)
 		trackMovement.append(np.mean(s1[::2,::2],axis=2))
-		network.addToMemory(trackMovement_prev,act,reward,trackMovement)
+		network.addToMemory(trackMovement_prev,act,reward,trackMovement, done)
 		#network.addToMemory(np.mean(s0[::2,::2],axis=2),act,reward,np.mean(s1[::2,::2],axis=2))
 		
 		if max_xpos>=xval:
@@ -110,3 +110,6 @@ while 1>0:
 
 		network.train(batch_size)
 		env.render()
+		counter += 1
+	# if(counter %10 == 0):
+		# network.save(counter)

@@ -8,7 +8,7 @@ from dqn import DQN
 import collections
 
 class mario():
-	def __init__(self, gamma, learningRate, minEps = 0.01, memorySize = 1000, maxEps = 1.0, actionSpace = list(range(0, 12)), epsDecayRate = 0.001):
+	def __init__(self, gamma, learningRate, minEps = 0.01, memorySize = 1000, maxEps = 1, actionSpace = list(range(0, 12)), epsDecayRate = 0.001):
 		self.gamma = gamma
 		self.Eps = maxEps
 		self.minEps = minEps
@@ -26,8 +26,8 @@ class mario():
 		#	self.recallMemory.append((0, 0, 0, 0))
 
 
-	def addToMemory(self, currState, action, reward, nextState):
-		self.recallMemory.append((currState, action, reward, nextState))
+	def addToMemory(self, currState, action, reward, nextState, done):
+		self.recallMemory.append((currState, action, reward, nextState, done))
 		'''self.recallMemory[self.memoryCounter] = (currState, action, reward, nextState)
 		self.memoryCounter = (self.memoryCounter + 1) % self.memorySize'''
 
@@ -47,7 +47,7 @@ class mario():
 		if(random.uniform(0, 1) < self.Eps):
 			move = np.random.choice(self.actionSpace)
 		else:
-			move = t.argmax(moveProbability[0]).numpy()
+			move = t.argmax(moveProbability[0]).cpu().numpy()
 		self.steps += 1
 		return move
 
@@ -63,7 +63,9 @@ class mario():
 			return np.array(self.recallMemory[memoryCounter:memoryCounter + batchSize])'''
 
 	def updateEps(self):
-		self.Eps = self.minEps + (1 - self.minEps) * np.exp(-self.epsDecayRate * self.Eps)
+		if(self.steps >= 1000):
+			self.Eps = max(self.minEps, self.Eps - 0.01)
+		# self.Eps = self.minEps + (1 - self.minEps) * np.exp(-self.epsDecayRate * self.steps)
 
 	# def train(self, batchSize):
 	# 	self.Q_eval.optimizer.zero()
@@ -127,7 +129,7 @@ class mario():
 		self.learningRate = deepcopy(other.learningRate)
 		self.actionSpace = deepcopy(other.actionSpace)
 		self.memorySize = deepcopy(other.memorySize)
-		self.memoryCounter = deepcopy(other.memoryCounter)
+		# self.memoryCounter = deepcopy(other.memoryCounter)
 		self.Q_eval = deepcopy(other.Q_eval)
 		# self.Q_next = deepcopy(other.Q_next)
 		self.recallMemory = deepcopy(other.recallMemory)
