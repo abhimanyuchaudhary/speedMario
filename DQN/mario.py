@@ -43,16 +43,17 @@ class mario():
 	# 	return move
 	def makeMove(self, state):
 		moveProbability = self.Q_eval.forward(state)
+		#print("MoveProb",moveProbability.shape)
 		if(random.uniform(0, 1) < self.Eps):
 			move = np.random.choice(self.actionSpace)
 		else:
-			move = t.argmax(moveProbability[2]).item()
+			move = t.argmax(moveProbability[0])
 		self.steps += 1
 		return move
 
 
 	def getBatchFromMemory(self, batchSize):
-		return random.sample(self.recallMemory,batchSize)
+		return random.sample(self.recallMemory,min(batchSize,len(self.recallMemory)))
 		'''total = self.memSize - self.memoryCounter
 		if(total < batchSize):
 			assert(len(self.recallMemory[memoryCounter:] + self.recallMemory[:total-batchSize]) == batchSize)
@@ -93,9 +94,14 @@ class mario():
 		Qvaluepredicted = self.Q_eval.forward(list(batch[:, 0][:])).to(self.Q_eval.dev)
 		Qnextvaluepredicted = self.Q_eval.forward(list(batch[:, 3][:])).to(self.Q_eval.dev)
 
+		#print(Qvaluepredicted)
+		#print(Qnextvaluepredicted)
 		#dim = 1 because middle frame?
 		bestAction = t.argmax(Qnextvaluepredicted, dim = 1).to(self.Q_eval.dev)
 		rewards = t.Tensor(list(batch[:, 2])).to(self.Q_eval.dev)
+
+		#print(bestAction)
+		#print(rewards)
 
 		Qtarget = Qvaluepredicted
 		Qtarget[:, bestAction] = rewards + self.gamma*t.max(Qnextvaluepredicted[:]) #understand

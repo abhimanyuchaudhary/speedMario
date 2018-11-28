@@ -13,7 +13,7 @@ class DQN(nn.Module):
 	def __init__(self,learningRate):
 		super(DQN,self).__init__()
 
-		self.layerC1=nn.Conv2d(1,32,8,4)
+		self.layerC1=nn.Conv2d(4,32,8,4)
 		self.layerC2=nn.Conv2d(32,64,4,2)
 		self.layerC3=nn.Conv2d(64,64,3,1)
 
@@ -32,7 +32,8 @@ class DQN(nn.Module):
 
 	def forward(self,inp):
 		inp=torch.Tensor(inp).to(self.dev)
-		inp=inp.view(-1,1,x,y)
+		inp=inp.view(-1,4,x,y)
+		#print(inp.shape)
 		inp=nn.functional.relu(self.layerC1(inp))
 		inp=nn.functional.relu(self.layerC2(inp))
 		inp=nn.functional.relu(self.layerC3(inp))

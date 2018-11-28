@@ -8,18 +8,19 @@ from dqn import DQN
 from mario import mario
 import numpy as np
 import torch
+import copy
 import collections
 
 
 
-batch_size=40
+batch_size=20
 maxMemory=50
 network=mario(gamma=0.9, learningRate=0.003, memorySize=maxMemory)
 
 
 
 #print(len(network.recallMemory))
-while len(network.recallMemory)<maxMemory:
+'''while len(network.recallMemory)<maxMemory:
 	s0=env.reset()
 	done=False
 	prev_xpos=40
@@ -43,7 +44,7 @@ while len(network.recallMemory)<maxMemory:
 		xval=info['x_pos']
 		reward=xval-prev_xpos
 		if info['life']<3:
-			reward=reward-20
+			reward=reward-50
 			done=True
 		network.addToMemory(np.mean(s0[::2,::2],axis=2),act,reward,np.mean(s1[::2,::2],axis=2))
 		
@@ -57,7 +58,7 @@ while len(network.recallMemory)<maxMemory:
 
 		counter+=1
 		#env.render()
-#print(len(network.recallMemory))
+#print(len(network.recallMemory))'''
 
 
 
@@ -67,14 +68,15 @@ while 1>0:
 	done=False
 	prev_xpos=40
 	max_xpos=40
-	trackMovement=collections.deque(maxlen=3)
-	while len(trackMovement)<3:
-		print(torch.tensor(np.mean(s0[::2,::2],axis=2)).shape)
+	trackMovement=collections.deque(maxlen=4)
+	while len(trackMovement)<4:
+		#print(torch.tensor(np.mean(s0[::2,::2],axis=2)).shape)
 		trackMovement.append(np.mean(s0[::2,::2],axis=2))
 	killCount=0
 
 	while 1>0:
 		if done or killCount>20:
+			print("done",done)
 			#print("***************")
 			#print(np.mean(s0,axis=2))
 			#print(torch.tensor(np.mean(s0,axis=2)).shape)#=[240,256]
@@ -90,11 +92,13 @@ while 1>0:
 		xval=info['x_pos']
 		reward=xval-prev_xpos
 		if info['life']<3:
-			reward=reward-20
+			reward=reward-50
 			done=True
 
-		network.addToMemory(np.mean(s0[::2,::2],axis=2),act,reward,np.mean(s1[::2,::2],axis=2))
+		trackMovement_prev=copy.deepcopy(trackMovement)
 		trackMovement.append(np.mean(s1[::2,::2],axis=2))
+		network.addToMemory(trackMovement_prev,act,reward,trackMovement)
+		#network.addToMemory(np.mean(s0[::2,::2],axis=2),act,reward,np.mean(s1[::2,::2],axis=2))
 		
 		if max_xpos>=xval:
 			killCount+=1
