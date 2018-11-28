@@ -46,7 +46,7 @@ class mario():
 		if(random.uniform(0, 1) < self.Eps):
 			move = np.random.choice(self.actionSpace)
 		else:
-			move = t.argmax(moveProbability)
+			move = t.argmax(moveProbability[2]).item()
 		self.steps += 1
 		return move
 
@@ -86,25 +86,25 @@ class mario():
 	# 	self.Q_eval.optimizer.step()
 	# 	self.learnStepCounter += 1
 	def train(self, batchSize):
-		self.Q_eval.optimizer.zero()
+		self.Q_eval.opt.zero_grad()
 
-		batch = getBatchFromMemory(batchSize)
+		batch = np.array(self.getBatchFromMemory(batchSize))
 
-		Qvaluepredicted = self.Q_eval.forward(list(batch[:, 0][:])).to(self.Q_eval.device)
-		Qnextvaluepredicted = self.Q_eval.forward(list(batch[:, 3][:])).to(self.Q_eval.device)
+		Qvaluepredicted = self.Q_eval.forward(list(batch[:, 0][:])).to(self.Q_eval.dev)
+		Qnextvaluepredicted = self.Q_eval.forward(list(batch[:, 3][:])).to(self.Q_eval.dev)
 
 		#dim = 1 because middle frame?
-		bestAction = t.argmax(Qnextvaluepredicted, dim = 1).to(self.Q_eval.device)
-		rewards = t.Tensor(list(batch[:, 2])).to(self.Q_eval.device)
+		bestAction = t.argmax(Qnextvaluepredicted, dim = 1).to(self.Q_eval.dev)
+		rewards = t.Tensor(list(batch[:, 2])).to(self.Q_eval.dev)
 
 		Qtarget = Qvaluepredicted
 		Qtarget[:, bestAction] = rewards + self.gamma*t.max(Qnextvaluepredicted[:]) #understand
 
-		updateEps()
+		self.updateEps()
 
-		loss = self.Q_eval.loss(Qtarget, Qvaluepredicted).to(self.Q_eval.device)
+		loss = self.Q_eval.lossFunction(Qtarget, Qvaluepredicted).to(self.Q_eval.dev)
 		loss.backward()
-		self.Q_eval.optimizer.step()
+		self.Q_eval.opt.step()
 		self.learnStepCounter += 1
 
 

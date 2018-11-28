@@ -4,8 +4,8 @@ import numpy as np
 
 
 #learningRate=0
-x=200
-y=200
+x=120
+y=128
 
 
 class DQN(nn.Module):
@@ -13,14 +13,14 @@ class DQN(nn.Module):
 	def __init__(self,learningRate):
 		super(DQN,self).__init__()
 
-		'''self.layerC1=nn.Conv2d()
-		self.layerC2=nn.Conv2d()
-		self.layerC3=nn.Conv2d()
+		self.layerC1=nn.Conv2d(1,32,8,4)
+		self.layerC2=nn.Conv2d(32,64,4,2)
+		self.layerC3=nn.Conv2d(64,64,3,1)
 
-		self.layerF1=nn.Linear()
-		self.layerF2.nn.Linear()
+		self.layerF1=nn.Linear(64*11*12,512)
+		self.layerF2=nn.Linear(512,12)
 
-		self.opt=torch.optim.RMSprop(self.parameters, lr=learningRate)
+		self.opt=torch.optim.RMSprop(self.parameters(), lr=learningRate)
 
 		self.lossFunction=nn.MSELoss()
 		s='cpu'
@@ -32,13 +32,12 @@ class DQN(nn.Module):
 
 	def forward(self,inp):
 		inp=torch.Tensor(inp).to(self.dev)
-		inp=inp.reshape(-1,1,x,y)
+		inp=inp.view(-1,1,x,y)
 		inp=nn.functional.relu(self.layerC1(inp))
 		inp=nn.functional.relu(self.layerC2(inp))
 		inp=nn.functional.relu(self.layerC3(inp))
-		inp=inp.reshape(-1,x,y)
+		inp=inp.view(-1,64*11*12)
 		inp=nn.functional.relu(self.layerF1(inp))
 		return self.layerF2(inp)
-'''
 
 
