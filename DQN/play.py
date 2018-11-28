@@ -76,7 +76,7 @@ while 1>0:
 
 	while 1>0:
 		if done or killCount>20:
-			print("done",done)
+			print("done",network.Eps)
 			#print("***************")
 			#print(np.mean(s0,axis=2))
 			#print(torch.tensor(np.mean(s0,axis=2)).shape)#=[240,256]
@@ -85,8 +85,8 @@ while 1>0:
 
 
 		#act=env.action_space.sample()
-		act=network.makeMove(trackMovement)
-		
+		act=int(network.makeMove(trackMovement))
+		#print(act)
 
 		s1,reward,done,info=env.step(act)
 		xval=info['x_pos']

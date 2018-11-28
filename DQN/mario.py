@@ -47,7 +47,7 @@ class mario():
 		if(random.uniform(0, 1) < self.Eps):
 			move = np.random.choice(self.actionSpace)
 		else:
-			move = t.argmax(moveProbability[0])
+			move = t.argmax(moveProbability[0]).numpy()
 		self.steps += 1
 		return move
 
