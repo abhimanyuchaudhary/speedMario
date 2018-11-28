@@ -17,7 +17,7 @@ class mario():
 		self.memorySize = memorySize
 		#self.memoryCounter = 0
 		self.Q_eval = DQN(learningRate)
-		self.Q_next = DQN(learningRate)
+		# self.Q_next = DQN(learningRate)
 		self.recallMemory = collections.deque(maxlen=self.memorySize)
 		self.steps = 0
 		self.learnStepCounter = 0
@@ -32,14 +32,24 @@ class mario():
 		self.memoryCounter = (self.memoryCounter + 1) % self.memorySize'''
 
 
+	# def makeMove(self, state):
+	# 	moveProbability = self.Q_eval.forward(state)
+	# 	if(random.uniform(0, 1) < self.Eps):
+	# 		move = np.random.choice(self.actionSpace)
+	# 	else:
+	# 		#using the middle frame, we're using 3
+	# 		move = t.argmax(moveProbability[2]).item()
+	# 	self.steps += 1
+	# 	return move
 	def makeMove(self, state):
 		moveProbability = self.Q_eval.forward(state)
 		if(random.uniform(0, 1) < self.Eps):
 			move = np.random.choice(self.actionSpace)
 		else:
-			#using the middle frame, we're using 3
-			move = t.argmax(moveProbability[2]).item()
+			move = t.argmax(moveProbability)
 		self.steps += 1
+		return move
+
 
 	def getBatchFromMemory(self, batchSize):
 		return random.sample(self.recallMemory,batchSize)
@@ -54,10 +64,31 @@ class mario():
 	def updateEps(self):
 		self.Eps = self.minEps + (1 - self.minEps) * np.exp(-self.epsDecayRate * self.Eps)
 
+	# def train(self, batchSize):
+	# 	self.Q_eval.optimizer.zero()
+
+	# 	batch = getBatchFromMemory(self, batchSize)
+
+	# 	Qvaluepredicted = self.Q_eval.forward(list(batch[:, 0][:])).to(self.Q_eval.device)
+	# 	Qnextvaluepredicted = self.Q_eval.forward(list(batch[:, 3][:])).to(self.Q_eval.device)
+
+	# 	#dim = 1 because middle frame?
+	# 	bestAction = t.argmax(Qnextvaluepredicted, dim = 1).to(self.Q_eval.device)
+	# 	rewards = t.Tensor(list(batch[:, 2])).to(self.Q_eval.device)
+
+	# 	Qtarget = Qvaluepredicted
+	# 	Qtarget[:, bestAction] = rewards + self.gamma*t.max(Qnextvaluepredicted[1]) #understand
+
+	# 	updateEps()
+
+	# 	loss = self.Q_eval.loss(Qtarget, Qvaluepredicted).to(self.Q_eval.device)
+	# 	loss.backward()
+	# 	self.Q_eval.optimizer.step()
+	# 	self.learnStepCounter += 1
 	def train(self, batchSize):
 		self.Q_eval.optimizer.zero()
 
-		batch = getBatchFromMemory(self, batchSize)
+		batch = getBatchFromMemory(batchSize)
 
 		Qvaluepredicted = self.Q_eval.forward(list(batch[:, 0][:])).to(self.Q_eval.device)
 		Qnextvaluepredicted = self.Q_eval.forward(list(batch[:, 3][:])).to(self.Q_eval.device)
@@ -67,7 +98,7 @@ class mario():
 		rewards = t.Tensor(list(batch[:, 2])).to(self.Q_eval.device)
 
 		Qtarget = Qvaluepredicted
-		Qtarget[:, bestAction] = rewards + self.gamma*t.max(Qnextvaluepredicted[1]) #understand
+		Qtarget[:, bestAction] = rewards + self.gamma*t.max(Qnextvaluepredicted[:]) #understand
 
 		updateEps()
 
@@ -76,12 +107,13 @@ class mario():
 		self.Q_eval.optimizer.step()
 		self.learnStepCounter += 1
 
+
 	def save(self, agentNum):
 		pickle_out = open("savedAgent/agent"+str(agentNum)+".ag", "wb+")
 		cPickle.dump(self, pickle_out)
 
 	def load(self, agentNum):
-		pickle_in = open("savedPopulations/generation"+str(generationNumber)+".gen", "rb")
+		pickle_in = open("savedAgent/agent"+str(agentNum)+".ag", "rb")
 		other = cPickle.load(pickle_in)
 		self.gamma = deepcopy(other.gamma)
 		self.Eps = deepcopy(other.Eps)
@@ -91,7 +123,7 @@ class mario():
 		self.memorySize = deepcopy(other.memorySize)
 		self.memoryCounter = deepcopy(other.memoryCounter)
 		self.Q_eval = deepcopy(other.Q_eval)
-		self.Q_next = deepcopy(other.Q_next)
+		# self.Q_next = deepcopy(other.Q_next)
 		self.recallMemory = deepcopy(other.recallMemory)
 		self.steps = deepcopy(other.steps)
 		self.learnStepCounter = deepcopy(other.learnStepCounter)
