@@ -1,7 +1,7 @@
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
 from gym_super_mario_bros.actions import COMPLEX_MOVEMENT
-env = gym_super_mario_bros.make('SuperMarioBrosNoFrameskip-v0')
+env = gym_super_mario_bros.make('SuperMarioBros-v0')#('SuperMarioBrosNoFrameskip-v0')
 env = BinarySpaceToDiscreteSpaceEnv(env, COMPLEX_MOVEMENT)
 import time
 from chromosome import link, chromosome, neuron
@@ -86,6 +86,8 @@ count=0
 prev_xpos=0
 done = False
 start = True
+startTime=0
+stopTime=0
 while 1>0:
     #Checks if first NN is to be loaded
     if(start):
@@ -98,7 +100,7 @@ while 1>0:
 
     #Checks if NN is done running or Mario stays still for 10 counts
     if info['life']<3 or done or count>25:
-        #print("life",info['life'],"count",count)
+        #print("life",info['life'],"count",count)\
         count = 0
         if currentNN.fitnessValue>population.maxFitness:
             population.maxFitness=currentNN.fitnessValue
@@ -110,6 +112,10 @@ while 1>0:
             #break
             population.nextGen()
             currentNN=population.fetchNext()
+            stopTime=time.time()
+            print(stopTime-startTime)
+            startTime=time.time()
+        
         state, reward, done, info = env.step(0)
 
       
@@ -136,5 +142,5 @@ while 1>0:
     #show_input(info['inp'])
     #print("X--------------------X")
     env.render()
-
+    
 env.close()
