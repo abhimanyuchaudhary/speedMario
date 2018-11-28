@@ -38,7 +38,7 @@ class mario():
 			move = np.random.choice(self.actionSpace)
 		else:
 			#using the middle frame, we're using 3
-			move = t.argmax(moveProbability[1]).item()
+			move = t.argmax(moveProbability[2]).item()
 		self.steps += 1
 
 	def getBatchFromMemory(self, batchSize):
