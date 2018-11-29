@@ -96,9 +96,9 @@ while 1>0:
 
 		s1,reward,done,info=env.step(act)#min(1,(steps%6))*2)
 		xval=info['x_pos']
-		#reward=xval-prev_xpos
-		#if reward<=0:
-		#	reward=(reward-1)*5
+		reward=xval-prev_xpos
+		if reward<=0:
+			reward=(reward-1)*5
 		if info['life']<3:
 			reward=-50
 			done=True
