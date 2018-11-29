@@ -22,6 +22,7 @@ class mario():
 		self.steps = 0
 		self.learnStepCounter = 0
 		self.epsDecayRate = epsDecayRate
+		self.intelligent=False
 		#for i in range(memorySize):
 		#	self.recallMemory.append((0, 0, 0, 0))
 
@@ -47,6 +48,22 @@ class mario():
 		if(random.uniform(0, 1) < self.Eps):
 			move = np.random.choice(self.actionSpace)
 		else:
+			#print(moveProbability)
+			print(t.argmax(moveProbability[0]))
+			#print()
+			move = t.argmax(moveProbability[0]).cpu().numpy()
+		self.steps += 1
+		return move
+
+	def makeMoveIntelligent(self, state, steps):
+		moveProbability = self.Q_eval.forward(state)
+		#print("MoveProb",moveProbability.shape)
+		if(steps>300 and random.random()<0.7):
+			move = np.random.choice(self.actionSpace)
+		else:
+			#print(moveProbability)
+			#print(t.argmax(moveProbability[0]))
+			#print()
 			move = t.argmax(moveProbability[0]).cpu().numpy()
 		self.steps += 1
 		return move
@@ -64,7 +81,7 @@ class mario():
 
 	def updateEps(self):
 		if(self.steps >= 1000):
-			self.Eps = max(self.minEps, self.Eps - 0.01)
+			self.Eps = max(self.minEps, self.Eps - 0.0001)
 		# self.Eps = self.minEps + (1 - self.minEps) * np.exp(-self.epsDecayRate * self.steps)
 
 	# def train(self, batchSize):
@@ -117,11 +134,13 @@ class mario():
 
 
 	def save(self, agentNum):
-		pickle_out = open("savedAgent/agent"+str(agentNum)+".ag", "wb+")
+		#pickle_out = open("savedAgent/agent"+str(agentNum)+".ag", "wb+")
+		pickle_out = open("savedAgent/agent.ag", "wb+")
 		cPickle.dump(self, pickle_out)
 
 	def load(self, agentNum):
-		pickle_in = open("savedAgent/agent"+str(agentNum)+".ag", "rb")
+		#pickle_in = open("savedAgent/agent"+str(agentNum)+".ag", "rb")
+		pickle_in = open("savedAgent/agent.ag", "rb")
 		other = cPickle.load(pickle_in)
 		self.gamma = deepcopy(other.gamma)
 		self.Eps = deepcopy(other.Eps)
@@ -136,6 +155,7 @@ class mario():
 		self.steps = deepcopy(other.steps)
 		self.learnStepCounter = deepcopy(other.learnStepCounter)
 		self.epsDecayRate = deepcopy(other.epsDecayRate)
+		self.intelligent=deepcopy(other.intelligent)
 
 
 
