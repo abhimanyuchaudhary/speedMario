@@ -9,6 +9,7 @@ from mutate import mutate
 from crossover import crossover
 from population import population
 import math
+import time
 
 
 
@@ -142,5 +143,6 @@ while 1>0:
     #show_input(info['inp'])
     #print("X--------------------X")
     env.render()
+    #time.sleep(0.1)
     
 env.close()

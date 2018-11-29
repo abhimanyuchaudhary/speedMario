@@ -58,7 +58,7 @@ class mario():
 	def makeMoveIntelligent(self, state, steps):
 		moveProbability = self.Q_eval.forward(state)
 		#print("MoveProb",moveProbability.shape)
-		if(steps>300 and random.random()<0.7):
+		if(steps>300 and random.random()<0.5):
 			move = np.random.choice(self.actionSpace)
 		else:
 			#print(moveProbability)
