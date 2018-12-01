@@ -91,14 +91,14 @@ while 1>0:
 		else:
 			act=int(network.makeMove(trackMovement))
 		
-		#if step%6==0:
-		#	act=0
+		if steps%6==0:
+			act=0
 
 		s1,reward,done,info=env.step(act)#min(1,(steps%6))*2)
 		xval=info['x_pos']
 		reward=xval-prev_xpos
 		if reward<=0:
-			reward=(reward-1)*5
+			reward=(reward-1)#*5
 		if info['life']<3:
 			reward=-50
 			done=True
@@ -106,7 +106,7 @@ while 1>0:
 		trackMovement_prev=copy.deepcopy(trackMovement)
 		trackMovement.append(np.mean(s1[::2,::2],axis=2))
 		network.addToMemory(trackMovement_prev,act,reward,trackMovement, done)
-		print(act,reward)
+		#print(act,reward)
 		#network.addToMemory(np.mean(s0[::2,::2],axis=2),act,reward,np.mean(s1[::2,::2],axis=2))
 		
 		if max_xpos>=xval:

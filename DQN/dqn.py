@@ -23,6 +23,7 @@ class DQN(nn.Module):
 		self.opt=torch.optim.RMSprop(self.parameters(), lr=learningRate)
 
 		self.lossFunction=nn.MSELoss()
+		#self.lossFunction=nn.CrossEntropyLoss()
 		s='cpu'
 		if torch.cuda.is_available():
 			s='cuda:0'

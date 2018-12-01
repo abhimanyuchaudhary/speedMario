@@ -48,9 +48,9 @@ class mario():
 		if(random.uniform(0, 1) < self.Eps):
 			move = np.random.choice(self.actionSpace)
 		else:
-			#print(moveProbability)
+			print(moveProbability)
 			print(t.argmax(moveProbability[0]))
-			#print()
+			print()
 			move = t.argmax(moveProbability[0]).cpu().numpy()
 		self.steps += 1
 		return move
@@ -80,7 +80,7 @@ class mario():
 			return np.array(self.recallMemory[memoryCounter:memoryCounter + batchSize])'''
 
 	def updateEps(self):
-		if(self.steps >= 1000):
+		if(self.steps >= 500):
 			self.Eps = max(self.minEps, self.Eps - 0.0001)
 		# self.Eps = self.minEps + (1 - self.minEps) * np.exp(-self.epsDecayRate * self.steps)
 
@@ -122,12 +122,22 @@ class mario():
 		#print(bestAction)
 		#print(rewards)
 
-		Qtarget = Qvaluepredicted
+		#Qtarget = deepcopy(Qvaluepredicted.cpu().numpy())
+		#Qtarget=t.Tensor(Qtarget)
+		Qtarget=t.empty(len(Qvaluepredicted),len(Qvaluepredicted[0]))
+		for i in range(len(Qvaluepredicted)):
+			for j in range(len(Qvaluepredicted[i])):
+				Qtarget[i,j]=Qvaluepredicted[i,j]
 		Qtarget[:, bestAction] = rewards + self.gamma*t.max(Qnextvaluepredicted[:]) #understand
+
+		#print("Targ",Qtarget[:,bestAction])
+		#print("Val Pred",Qvaluepredicted[:,bestAction])
+		#print(Qtarget-Qvaluepredicted)
 
 		self.updateEps()
 
-		loss = self.Q_eval.lossFunction(Qtarget, Qvaluepredicted).to(self.Q_eval.dev)
+		loss = self.Q_eval.lossFunction(Qvaluepredicted, Qtarget).to(self.Q_eval.dev)
+		#print(loss)
 		loss.backward()
 		self.Q_eval.opt.step()
 		self.learnStepCounter += 1
