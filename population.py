@@ -96,6 +96,7 @@ class population:
 		self.populationSpecies = []
 
 	def nextGen(self):
+		self.save()
 		totalAvgFit=0
 		remaining=0
 		avgPopFit=0
@@ -144,7 +145,7 @@ class population:
 		self.index=0
 		self.maxFitness=0
 
-		self.save()
+		#self.save()
 
 	
 	def removeWeak(self):
