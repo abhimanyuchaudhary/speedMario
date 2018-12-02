@@ -107,6 +107,7 @@ while 1>0:
             population.maxFitness=currentNN.fitnessValue
         #print("R")
         state = env.reset()
+        #print(currentNN.fitnessValue)
         currentNN = population.fetchNext()#load new nn
         if not currentNN:
             #remove weak individuals, generate new population
@@ -114,10 +115,11 @@ while 1>0:
             population.nextGen()
             currentNN=population.fetchNext()
             
-            stopTime=time.time()
+            #stopTime=time.time()
             #print(stopTime-startTime)
-            startTime=time.time()
+            #startTime=time.time()
         print(len(currentNN.hiddenNeurons),currentNN.hiddenNeuronNumber)
+        currentNN.fitnessValue=0
         state, reward, done, info = env.step(0)
 
       
