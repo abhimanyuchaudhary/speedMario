@@ -113,8 +113,8 @@ class mario():
 		Qvaluepredicted = self.Q_eval.forward(list(batch[:, 0][:])).to(self.Q_eval.dev)
 		Qnextvaluepredicted = self.Q_eval.forward(list(batch[:, 3][:])).to(self.Q_eval.dev)
 
-		#print(Qvaluepredicted)
-		#print(Qnextvaluepredicted)
+		print(Qvaluepredicted)
+		print(Qnextvaluepredicted)
 		#dim = 1 because middle frame?
 		bestAction = t.argmax(Qnextvaluepredicted, dim = 1).to(self.Q_eval.dev)
 		rewards = t.Tensor(list(batch[:, 2])).to(self.Q_eval.dev)

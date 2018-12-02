@@ -1,6 +1,6 @@
 from chromosome import link, chromosome
 from copy import deepcopy
-import mutate, population
+#import population
 import random
 
 PROBABILITY_fitParent = 0.5
@@ -44,6 +44,8 @@ def crossover(c1, c2):
 	#maybe this will fix
 	for leftOverGenes in range(i, len(fitParentLinks)):
 		child.addLink(fitParentLinks[leftOverGenes])
+
+	child.hiddenNeuronNumber=fitParent.hiddenNeuronNumber
 
 	#child.links = deepcopy(childLinks)
 	return child

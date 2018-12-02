@@ -2,6 +2,7 @@ from chromosome import link, chromosome, neuron
 from random import randint
 import random
 from copy import deepcopy
+#import crossover
 
 
 
@@ -20,7 +21,7 @@ def mutate(chromosome, innovationNumber):
 	if random.random()<PROBABILITY_linkMutate:
 		innovationNumber, chromosome=linkMutate(chromosome, innovationNumber)
 
-	if random.random()<PROBABILITY_nodeMutate:
+	if random.random()<PROBABILITY_nodeMutate and chromosome.hiddenNeuronNumber<1999:
 		innovationNumber, chromosome=nodeMutate(chromosome, innovationNumber)
 
 	if random.random()<PROBABILITY_enable:
@@ -133,12 +134,16 @@ def nodeMutate(chromosome, innovationNumber):
 
 '''
 c = chromosome()
-c.showChromosome()
+d = chromosome()
+#c.showChromosome()
+inn=1
 for i in range(100):
-	x,c=mutate(c,1)
-c.showChromosome()
+	inn,c=mutate(c,inn)
+	inn,d=mutate(d,inn)
+#c.showChromosome()
+cd=crossover.crossover(d,c)
+print(inn)
+print(c.hiddenNeuronNumber)
+print(d.hiddenNeuronNumber)
+print(cd.hiddenNeuronNumber,len(cd.hiddenNeurons))
 '''
-
-
-
-

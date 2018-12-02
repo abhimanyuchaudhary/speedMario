@@ -113,10 +113,11 @@ while 1>0:
             #break
             population.nextGen()
             currentNN=population.fetchNext()
+            
             stopTime=time.time()
-            print(stopTime-startTime)
+            #print(stopTime-startTime)
             startTime=time.time()
-        
+        print(len(currentNN.hiddenNeurons),currentNN.hiddenNeuronNumber)
         state, reward, done, info = env.step(0)
 
       
