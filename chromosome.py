@@ -1,6 +1,4 @@
 
-maxhiddennodes=0
-
 class neuron:
     def __init__(self,n):
         self.number=n

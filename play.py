@@ -1,7 +1,7 @@
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
 from gym_super_mario_bros.actions import COMPLEX_MOVEMENT
-env = gym_super_mario_bros.make('SuperMarioBros-v0')#('SuperMarioBrosNoFrameskip-v0')
+env = gym_super_mario_bros.make('SuperMarioBros-v0')
 env = BinarySpaceToDiscreteSpaceEnv(env, COMPLEX_MOVEMENT)
 import time
 from chromosome import link, chromosome, neuron
@@ -47,7 +47,6 @@ def getNetworkOutput(nn,input):
         S=0
         for link in nn.hiddenNeurons[i].incomingLinks:
             if nn.links[link].isEnabled:
-                #link.neuron1<link.neuron2 always
                 value=nn.getValue(nn.links[link].neuron1)
                 S=S+nn.links[link].weight*value
         nn.hiddenNeurons[i].val=sigmoid(S)
@@ -59,7 +58,6 @@ def getNetworkOutput(nn,input):
         S=0
         for link in nn.outputNeurons[i].incomingLinks:
             if nn.links[link].isEnabled:
-                #link.neuron1<link.neuron2 always
                 value=nn.getValue(nn.links[link].neuron1)
                 S=S+nn.links[link].weight*value
         nn.outputNeurons[i].val=sigmoid(S)
@@ -67,15 +65,10 @@ def getNetworkOutput(nn,input):
             maxVal=nn.outputNeurons[i].val
             maxIndex=i
 
-    #print("Output: ",end='')
-    #for i in nn.outputNeurons:
-    #    print(i.val,end=" ")
-    #print()
-    #print(maxIndex)
     return maxIndex
 
 
-population=population(300)
+population=population(50)
 print("Enter generation number to load or -1 to randomly initialize")
 genNumber = int(input())
 if(genNumber == -1):
@@ -83,7 +76,6 @@ if(genNumber == -1):
 else:
     population.load(genNumber)
     population.index=0
-#population.printPopulation()
 count=0
 prev_xpos=0
 done = False
@@ -102,25 +94,21 @@ while 1>0:
 
     #Checks if NN is done running or Mario stays still for 10 counts
     if info['life']<3 or done or count>25:
-        #print("life",info['life'],"count",count)\
         count = 0
         if currentNN.fitnessValue>population.maxFitness:
             population.maxFitness=currentNN.fitnessValue
-        #print("R")
+
         state = env.reset()
-        print(currentNN.fitnessValue)
         currentNN = population.fetchNext()#load new nn
         if not currentNN:
             #remove weak individuals, generate new population
-            #break
             population.nextGen()
             currentNN=population.fetchNext()
-            #time.sleep(1)
-            
+
             #stopTime=time.time()
             #print(stopTime-startTime)
             #startTime=time.time()
-        #print(len(currentNN.hiddenNeurons),currentNN.hiddenNeuronNumber)
+        
         currentNN.fitnessValue=0
         state, reward, done, info = env.step(0)
 
@@ -142,12 +130,6 @@ while 1>0:
         count=0
     prev_xpos=xval
     currentNN.fitnessValue = max(xval,currentNN.fitnessValue)
-
-    #show_info(info)
-    #print(len(info['inp']))
-    #show_input(info['inp'])
-    #print("X--------------------X")
     env.render()
-    #time.sleep(0.1)
     
 env.close()

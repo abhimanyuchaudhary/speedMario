@@ -4,6 +4,7 @@ from gym_super_mario_bros.actions import COMPLEX_MOVEMENT
 env = gym_super_mario_bros.make('SuperMarioBros-v0')
 env = BinarySpaceToDiscreteSpaceEnv(env, COMPLEX_MOVEMENT)
 import time
+#import matplotlib.pyplot as plt
 from chromosome import link, chromosome, neuron
 from mutate import mutate
 from crossover import crossover
@@ -71,15 +72,11 @@ def getNetworkOutput(nn,input):
 
 def getBestMario(p):
 	bestMario = p.populationSpecies[0].subpopulation[0]
-	print("AAA",p.populationSpecies[0].subpopulation[0].fitnessValue)
-	for i in range(len(p.populationSpecies)):#populationSpecies in p.populationSpecies:
-		for j in range(len(p.populationSpecies[i].subpopulation)):#mario in populationSpecies.subpopulation:
-
-			#if(mario.fitnessValue > 1000):
-			#	print(mario.fitnessValue)
-			if(bestMario.fitnessValue < p.populationSpecies[i].subpopulation[j].fitnessValue):
-				bestMario = deepcopy(p.populationSpecies[i].subpopulation[j])
-				print("GGGG:",p.populationSpecies[i].subpopulation[j].fitnessValue,i,j)
+	for populationSpecies in p.populationSpecies:
+		for mario in populationSpecies.subpopulation:
+            # mario.showChromosome()
+			if(bestMario.fitnessValue < mario.fitnessValue):
+				bestMario = deepcopy(mario)
             # print(bestMario.fitnessValue)
         # bestMario = max(bestMario, max(populationSpecies.subpopulation))
 	return bestMario
@@ -92,19 +89,25 @@ population=population(300)
 # else:
 #     population.load(genNumber)
 #population.printPopulation()
-for genNumber in range(1, 600):
+y1values = []
+y2values = []
+xvalues = []
+for genNumber in [1,30,175,600]:#[1,30,100,175]:#:range(1, 140):
 	count=0
 	prev_xpos=0
 	done = False
 	start = True
-	population.load(int(94))
+	population.load(int(genNumber))
 
 	currentNN = getBestMario(population)
-	#break;
-	print(currentNN.fitnessValue)
 	state = env.reset()
 	state, reward, done, info = env.step(0)
 	distance = 0
+	
+	xvalues.append(genNumber)
+	y1values.append(currentNN.fitnessValue)
+	y2values.append(len(currentNN.links))
+	print(currentNN.fitnessValue, len(currentNN.links))
 	while True:
 	    #Checks if NN is done running or Mario stays still for 10 counts
 		if info['life']<3 or done or info['stage'] != 1 or count > 25:
@@ -116,22 +119,37 @@ for genNumber in range(1, 600):
 		#use input to calculate next move M  
 		M=getNetworkOutput(currentNN,info['inp'])
 		if(info['x_pos'] <= 2330 and info['x_pos'] >= 2130):
-		    state, reward, done, info = env.step(5)
-		    state, reward, done, info = env.step(1)
+			state, reward, done, info = env.step(5)
+			env.render()
+			time.sleep(0.02)
+			#state, reward, done, info = env.step(1)
+			state, reward, done, info = env.step(1)
+			env.render()
+			time.sleep(0.02)
 		if(info['x_pos'] <= 2430 and info['x_pos'] >= 2390):
-		    state, reward, done, info = env.step(5)
-		    state, reward, done, info = env.step(1)
+			state, reward, done, info = env.step(5)
+			env.render()
+			time.sleep(0.02)
+			state, reward, done, info = env.step(1)
+			env.render()
+			time.sleep(0.02)
 		elif(info['x_pos'] >= 2900):
-		    state, reward, done, info = env.step(5)
-		    state, reward, done, info = env.step(5)
-		    state, reward, done, info = env.step(1)
+			state, reward, done, info = env.step(5)
+			env.render()
+			time.sleep(0.02)
+			state, reward, done, info = env.step(5)
+			env.render()
+			time.sleep(0.02)
+			state, reward, done, info = env.step(1)
+			env.render()
+			time.sleep(0.02)
 	    
 		else:
 			state, reward, done, info = env.step(M)
 
 
 		xval=info['x_pos']
-		# print(currentNN.fitnessValue, xval)
+		#print(currentNN.fitnessValue, xval)
 		if prev_xpos>=xval:
 			# print("here")
 			count+=1
@@ -140,14 +158,33 @@ for genNumber in range(1, 600):
 		# print(count)	        
 		prev_xpos=xval
 		currentNN.fitnessValue = max(xval,currentNN.fitnessValue)
-		#print(xval)
 
 	    #show_info(info)
 	    #print(len(info['inp']))
 	    #show_input(info['inp'])
 	    #print("X--------------------X")
 		env.render()
+		time.sleep(0.02)
 		if(info['stage'] == 1):
 			distance = info['x_pos']
+print(y1values)
+#with open('fitness.txt', 'w') as f:
+#    for item in y1values:
+#        f.write("%s\n" % item)
+# print()
+# print("HEREHEHREHRHERHERHEHRRH")
+# print()
+# print(y2values)
+# with open('link.txt', 'w') as f:
+#     for item in y2values:
+#         f.write("%s\n" % item)
+# plt.plot(xvalues, y1values)
+# plt.xlabel("Generations")
+# plt.ylabel("Max Fitness(distance)")
+# plt.show()
+# plt.plot(xvalues, y2values)
+# plt.xlabel("Generations")
+# plt.ylabel("Number of Links in NN")
 
+# plt.show()
 env.close()
